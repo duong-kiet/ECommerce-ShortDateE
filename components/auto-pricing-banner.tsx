@@ -68,20 +68,20 @@ export function AutoPricingBanner() {
               </div>
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span>Hôm nay:</span>
+                  <span>1 giờ:</span>
                   <span className="font-medium text-red-600">-80%</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span>≤ 3 ngày:</span>
-                  <span className="font-medium text-orange-600">-60%</span>
+                  <span>≤ 3 giờ:</span>
+                  <span className="font-medium text-orange-600">-70%</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span>≤ 7 ngày:</span>
-                  <span className="font-medium text-yellow-600">-40%</span>
+                  <span>≤ 6 giờ:</span>
+                  <span className="font-medium text-yellow-600">-50%</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span>≤ 14 ngày:</span>
-                  <span className="font-medium text-blue-600">-20%</span>
+                  <span>≤ 8 giờ:</span>
+                  <span className="font-medium text-blue-600">-30%</span>
                 </div>
               </div>
             </div>

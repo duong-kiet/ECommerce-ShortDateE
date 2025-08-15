@@ -2,6 +2,8 @@
 
 import { MockProduct, calculateAutoPrice } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
+import { AddToCartButton } from "@/components/add-to-cart-button";
+import { showToast } from "@/components/ui/simple-toast";
 // import { AddToCartButton } from "@/components/add-to-cart-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, ShoppingCart, Star, Clock, AlertTriangle } from "lucide-react";
@@ -236,18 +238,22 @@ export function ProductCard({
           </div>
 
           {/* Add to Cart Button */}
-          {/* <AddToCartButton
+          <AddToCartButton
             id={product.id}
             name={product.name}
             price={currentPrice}
-            imageUrl={product.images[0] ?? null}
-            onClick={handleAddToCartLocal}
+            imageUrl={product.images?.[0] ?? null}
             className="w-full bg-green-50 hover:bg-green-100 text-green-600 border border-green-200"
             size="sm"
+            onClick={() =>
+              showToast(`Đã thêm "${product.name}" vào giỏ`, {
+                variant: "success",
+              })
+            }
           >
             <ShoppingCart className="w-4 h-4 mr-2" />
             Thêm vào giỏ
-          </AddToCartButton> */}
+          </AddToCartButton>
         </div>
       </CardContent>
     </Card>
