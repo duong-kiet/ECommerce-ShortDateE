@@ -215,7 +215,7 @@ export const mockProducts: MockProduct[] = [
       "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=500&h=500&fit=crop",
     ],
     default_price: { id: "price_1", unit_amount: 3285, currency: "usd" },
-    originalPrice: 3380,
+    originalPrice: 3345,
     category: "dry-foods",
     inStock: true,
     dealEndDate: new Date(
@@ -227,8 +227,8 @@ export const mockProducts: MockProduct[] = [
     ).toISOString(),
     rating: 4.0,
     productType: "dry",
-    expiryDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
-    autoPricingEnabled: false,
+    expiryDate: new Date(Date.now() + 5 * 1000).toISOString(),
+    autoPricingEnabled: true,
   },
   {
     id: "prod_2",
