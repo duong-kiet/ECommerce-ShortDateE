@@ -12,11 +12,55 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useCartStore } from "@/store/cart-store";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/lib/firebase/firebase.config";
+import { getUserDisplayName, logout } from "@/lib/firebase/auth";
+import { useRouter } from "next/navigation";
+import type { User as FirebaseUser } from "firebase/auth";
 
 export function Header() {
   const { items } = useCartStore();
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  const [user, setUser] = useState<FirebaseUser | null>(null);
+  const [displayName, setDisplayName] = useState<string>("");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const router = useRouter();
+  const menuRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, async (u) => {
+      setUser(u);
+      if (u) {
+        const name = await getUserDisplayName(u);
+        setDisplayName(name || "");
+      } else {
+        setDisplayName("");
+      }
+    });
+    return () => unsub();
+  }, []);
+
+  useEffect(() => {
+    function onDocClick(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    }
+    document.addEventListener("click", onDocClick);
+    return () => document.removeEventListener("click", onDocClick);
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setMenuOpen(false);
+      router.push("/login");
+    } catch (err) {
+      console.error("Logout failed", err);
+    }
+  };
 
   return (
     <header className="bg-white shadow-sm border-b">
@@ -87,9 +131,40 @@ export function Header() {
               </Button>
             </Link>
 
-            <Button variant="ghost" size="sm">
-              <User className="w-4 h-4" />
-            </Button>
+            {/* User area */}
+            <div className="relative" ref={menuRef}>
+              {user ? (
+                <>
+                  <button
+                    onClick={() => setMenuOpen((s) => !s)}
+                    className="flex items-center space-x-2 px-3 py-1 rounded hover:bg-gray-100"
+                    aria-expanded={menuOpen}
+                  >
+                    <User className="w-4 h-4" />
+                    <span className="text-sm">{displayName || "Tài khoản"}</span>
+                    <ChevronDown className="w-4 h-4" />
+                  </button>
+
+                  {menuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-md z-20">
+                      <button
+                        onClick={handleLogout}
+                        className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
+                      >
+                        Đăng xuất
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <Link href="/login">
+                  <Button variant="ghost" size="sm" className="flex items-center space-x-2">
+                    <User className="w-4 h-4" />
+                    <span>Đăng nhập</span>
+                  </Button>
+                </Link>
+              )}
+            </div>
           </div>
         </div>
 

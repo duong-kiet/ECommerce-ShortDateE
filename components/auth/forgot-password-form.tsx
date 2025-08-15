@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/card";
 import { Mail, ArrowLeft, ShoppingCart } from "lucide-react";
 import Link from "next/link";
+import { sendPasswordReset } from "@/lib/firebase/auth";
+import { mapFirebaseAuthError } from "@/lib/utils/utils";
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
@@ -19,36 +21,31 @@ export function ForgotPasswordForm() {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState("");
 
-  const validateEmail = (email: string) => {
-    return /\S+@\S+\.\S+/.test(email);
+  const validateEmail = (value: string) => {
+    return /\S+@\S+\.\S+/.test(value);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!email) {
       setError("Email là bắt buộc");
       return;
     }
-
     if (!validateEmail(email)) {
       setError("Email không hợp lệ");
       return;
     }
-
     setIsLoading(true);
     setError("");
-
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Handle successful password reset request
-      console.log("Password reset requested for:", email);
+      await sendPasswordReset(email);
       setIsSubmitted(true);
-    } catch (error) {
-      console.error("Password reset failed:", error);
-      setError("Có lỗi xảy ra. Vui lòng thử lại.");
+    } catch (err: unknown) {
+      const raw =
+        err && typeof err === "object" && "message" in err
+          ? (err as { message: string }).message
+          : String(err);
+      setError(mapFirebaseAuthError(raw ?? undefined));
     } finally {
       setIsLoading(false);
     }
