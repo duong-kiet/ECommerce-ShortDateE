@@ -1,6 +1,11 @@
 "use client";
 
-import { MockProduct, calculateAutoPrice } from "@/lib/mock-data";
+import {
+  MockProduct,
+  calculateAutoPrice,
+  formatTimeProduct,
+  formatPrice
+} from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import { showToast } from "@/components/ui/simple-toast";
@@ -37,20 +42,15 @@ export function ProductCard({
   const ONE_MINUTE = 60 * ONE_SECOND;
   const ONE_HOUR = 60 * ONE_MINUTE;
   const ONE_DAY = 24 * ONE_HOUR;
-  const initialDiff = product.expiryDate
-    ? Math.max(0, new Date(product.expiryDate).getTime() - Date.now())
+  // Parse expiry once via formatTimeProduct and reuse
+  const parsedExpiry = formatTimeProduct(product.expiryDate);
+  const initialDiff = parsedExpiry
+    ? Math.max(0, parsedExpiry.getTime() - Date.now())
     : 0;
   const [timeLeftMs, setTimeLeftMs] = useState<number>(initialDiff);
   const [daysLeft, setDaysLeft] = useState<number>(
-    product.expiryDate ? Math.ceil(initialDiff / ONE_DAY) : 0
+    parsedExpiry ? Math.ceil(initialDiff / ONE_DAY) : 0
   );
-
-  const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount / 100);
-  };
 
   const formatTimeLeft = (ms: number) => {
     if (ms <= 0) return "Hết hạn";
@@ -74,8 +74,9 @@ export function ProductCard({
   useEffect(() => {
     const updatePrice = () => {
       // Always update time left if có expiryDate (dù là deals hay không)
-      if (product.expiryDate) {
-        const diff = new Date(product.expiryDate).getTime() - Date.now();
+      const expiry = formatTimeProduct(product.expiryDate);
+      if (expiry) {
+        const diff = expiry.getTime() - Date.now();
         const clamped = Math.max(0, diff);
         setTimeLeftMs(clamped);
         setDaysLeft(Math.ceil(clamped / ONE_DAY));
@@ -85,13 +86,19 @@ export function ProductCard({
       }
 
       // Update price
-      if (!isDeal && product.autoPricingEnabled && product.expiryDate) {
-        const autoPrice = calculateAutoPrice(
-          product.originalPrice,
-          product.expiryDate,
-          product.productType
-        );
-        setCurrentPrice(autoPrice);
+      if (!isDeal && product.autoPricingEnabled) {
+        const expiryForCalc = formatTimeProduct(product.expiryDate);
+        if (expiryForCalc) {
+          const autoPrice = calculateAutoPrice(
+            product.originalPrice,
+            expiryForCalc.toISOString(),
+            product.productType
+          );
+          setCurrentPrice(autoPrice);
+        } else {
+          // cannot parse expiry -> keep default price
+          setCurrentPrice(product.default_price.unit_amount);
+        }
       } else {
         // Cho deals hoặc khi auto-pricing tắt, sử dụng giá cố định
         setCurrentPrice(product.default_price.unit_amount);
@@ -142,7 +149,7 @@ export function ProductCard({
           {(!!label || (!isDeal && product.expiryDate)) && (
             <div className="absolute top-2 left-2 z-20 flex items-center gap-2">
               {/* HSD: chỉ hiển thị khi không phải deal và có expiryDate */}
-              {!isDeal && product.expiryDate && (
+              {!isDeal && parsedExpiry && (
                 <span
                   className={`px-2 py-1 text-xs font-medium text-white rounded flex items-center gap-1 ${getExpiryBadgeColor()}`}
                 >

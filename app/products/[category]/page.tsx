@@ -1,5 +1,5 @@
 "use client";
-
+import { use } from "react";
 import { ProductList } from "@/components/product-list";
 import { getCategoryById, getProductsByCategory } from "@/lib/mock-data";
 import { Sidebar } from "@/components/sidebar";
@@ -16,20 +16,21 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import { showToast } from "@/components/ui/simple-toast";
+import { useCartStore } from "@/store/cart-store";
 
 import { notFound } from "next/navigation";
 
 interface ProductCategoryPageProps {
-  params: {
+  params: Promise<{
     category: string;
-  };
+  }>;
 }
 
-export default async function ProductCategoryPage({
+export default function ProductCategoryPage({
   params,
 }: ProductCategoryPageProps) {
-  const { category } = params;
-  // Lấy category từ mock-data để đảm bảo id trùng khớp
+  const { category } = use(params); // unwrap Promise<params>
+
   const categoryItem = getCategoryById(category);
   if (!categoryItem) {
     notFound();
@@ -91,12 +92,23 @@ export default async function ProductCategoryPage({
               </div>
 
               {/* Cart */}
-              <Button variant="ghost" size="sm" className="relative">
-                <ShoppingCart className="w-5 h-5" />
-                <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+              {(() => {
+                const items = useCartStore((s) => s.items);
+                const totalItems = items.reduce(
+                  (acc, it) => acc + it.quantity,
                   0
-                </span>
-              </Button>
+                );
+                return (
+                  <Link href="/cart">
+                    <Button variant="ghost" size="sm" className="relative">
+                      <ShoppingCart className="w-4 h-4" />
+                      <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                        {totalItems}
+                      </span>
+                    </Button>
+                  </Link>
+                );
+              })()}
             </div>
           </div>
         </div>
