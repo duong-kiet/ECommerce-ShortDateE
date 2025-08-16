@@ -103,13 +103,13 @@ export function Header() {
               Trang chủ
             </Link>
             <Link
-              href="/category/dry-foods"
+              href="/products/dry-foods"
               className="text-sm font-medium text-gray-700 hover:text-green-600 transition-colors"
             >
               Thực phẩm khô
             </Link>
             <Link
-              href="/category/fresh-foods"
+              href="/products/fresh-foods"
               className="text-sm font-medium text-gray-700 hover:text-green-600 transition-colors"
             >
               Đồ ăn tươi

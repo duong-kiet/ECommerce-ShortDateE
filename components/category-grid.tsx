@@ -30,7 +30,7 @@ export function CategoryGrid() {
         {mainCategories.map((category) => (
           <Link
             key={category.id}
-            href={`/category/${category.id}`}
+            href={`/products/${category.id}`}
             className="group relative overflow-hidden bg-white rounded-xl p-6 hover:shadow-lg transition-all duration-300 border border-gray-100"
           >
             <div className="flex items-start justify-between">
@@ -72,7 +72,7 @@ export function CategoryGrid() {
           {subCategories.map((category) => (
             <Link
               key={category.id}
-              href={`/category/${category.id}`}
+              href={`/products/${category.id}`}
               className="group flex flex-col items-center p-4 bg-white rounded-lg hover:shadow-md transition-shadow duration-300 border border-gray-100"
             >
               <div className="text-2xl mb-2 group-hover:scale-110 transition-transform duration-300">
