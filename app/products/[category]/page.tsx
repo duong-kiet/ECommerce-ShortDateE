@@ -1,62 +1,54 @@
-import { ProductList } from "@/components/product-list";
-import { getProducts } from "@/lib/mock-data";
-import { Sidebar } from "@/components/sidebar";
+"use client"
+import { useEffect, useState } from "react";
+import { getCategoryById, getProductsByCategory } from "@/lib/firebase/firestore-app-data";
 import { DealsOfTheDaySection } from "@/components/deals-of-the-day-section";
-import {
-  ChevronDown,
-  Search,
-  ShoppingCart,
-  Grid,
-  List,
-  Filter,
-} from "lucide-react";
+import { ChevronDown, Search, ShoppingCart, Grid, List, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { AddToCartButton } from "@/components/add-to-cart-button";
+import { showToast } from "@/components/ui/simple-toast";
+import { useCartStore } from "@/store/cart-store";
+import { useParams, useRouter } from "next/navigation";
+import { Category, Product } from "@/lib/data";
 
-interface ProductCategoryPageProps {
-  params: {
-    category: string;
-  };
-}
+export default function ProductCategoryPage() {
+  const params = useParams<{ category: string }>();
+  const [categoryItem, setCategoryItem] = useState<Category | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const router = useRouter();
 
-export default async function ProductCategoryPage({
-  params,
-}: ProductCategoryPageProps) {
-  const { category } = params;
-  const products = getProducts();
+  useEffect(() => {
+    async function fetchData() {
+      const cat = await getCategoryById(params.category);
+      if (!cat) {
+        router.replace("/404");
+        return;
+      }
+      setCategoryItem(cat);
+      // console.log("Category ID:", params.category);
+      const prods = await getProductsByCategory(params.category);
+      // console.log(prods);
+      setProducts(prods);
+    }
+    fetchData();
+  }, [params.category, router]);
 
-  // Mock category mapping
-  const categoryMap: Record<
-    string,
-    { name: string; icon: string; description: string }
-  > = {
-    drink: {
-      name: "Nước giải khát",
-      icon: "🥤",
-      description: "Các loại nước giải khát tươi mới, đa dạng hương vị",
-    },
-    noodle: {
-      name: "Mì gói",
-      icon: "🍜",
-      description: "Mì gói các loại, nhanh gọn và tiện lợi",
-    },
-    snack: {
-      name: "Bánh kẹo",
-      icon: "🍪",
-      description: "Bánh kẹo ngọt ngào, đa dạng chủng loại",
-    },
-    canned: {
-      name: "Đồ hộp",
-      icon: "🥫",
-      description: "Thực phẩm đóng hộp, bảo quản lâu dài",
-    },
-  };
+  const items = useCartStore((s) => s.items);
 
-  const categoryInfo = categoryMap[category];
-  if (!categoryInfo) {
-    notFound();
+  if (!categoryItem) {
+    return null;
   }
+
+  const categoryInfo = {
+    name: categoryItem.name,
+    icon: categoryItem.icon,
+    description:
+      categoryItem.productType === "fresh"
+        ? "Đồ ăn tươi, cần dùng sớm"
+        : "Thực phẩm khô, bảo quản lâu dài",
+  };
+
+  const totalItems = items.reduce((acc, it) => acc + it.quantity, 0);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -101,12 +93,14 @@ export default async function ProductCategoryPage({
               </div>
 
               {/* Cart */}
-              <Button variant="ghost" size="sm" className="relative">
-                <ShoppingCart className="w-5 h-5" />
-                <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  0
-                </span>
-              </Button>
+              <Link href="/cart">
+                <Button variant="ghost" size="sm" className="relative">
+                  <ShoppingCart className="w-4 h-4" />
+                  <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                    {totalItems}
+                  </span>
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
@@ -174,7 +168,7 @@ export default async function ProductCategoryPage({
                   <div className="flex">
                     {/* Product Image */}
                     <div className="relative w-48 h-48 flex-shrink-0">
-                      <Link href={`/products/${product.id}`}>
+                      <Link href={`/products/detail/${product.id}`}>
                         <img
                           src={product.images[0]}
                           alt={product.name}
@@ -213,7 +207,7 @@ export default async function ProductCategoryPage({
                           </div>
                           <h3 className="text-xl font-semibold text-gray-900 mb-3">
                             <Link
-                              href={`/products/${product.id}`}
+                              href={`/products/detail/${product.id}`}
                               className="hover:text-green-600 transition-colors"
                             >
                               {product.name}
@@ -254,10 +248,27 @@ export default async function ProductCategoryPage({
 
                         {/* Action Buttons */}
                         <div className="flex flex-col space-y-3 ml-6">
-                          <Button className="w-32 bg-green-600 hover:bg-green-700">
+                          {/* <Button className="w-32 bg-green-600 hover:bg-green-700">
                             <ShoppingCart className="w-4 h-4 mr-2" />
                             Thêm vào giỏ
-                          </Button>
+                          </Button> */}
+                          <AddToCartButton
+                            id={product.id}
+                            name={product.name}
+                            price={product.default_price.unit_amount}
+                            imageUrl={product.images?.[0] ?? null}
+                            className="w-full bg-green-50 hover:bg-green-100 text-green-600 border border-green-200"
+                            size="sm"
+                            onClick={() =>
+                              showToast(`Đã thêm "${product.name}" vào giỏ`, {
+                                variant: "success",
+                              })
+                            }
+                          >
+                            <ShoppingCart className="w-4 h-4 mr-2" />
+                            Thêm vào giỏ
+                          </AddToCartButton>
+
                           <Button variant="outline" size="sm" className="w-32">
                             So sánh
                           </Button>
@@ -436,7 +447,7 @@ export default async function ProductCategoryPage({
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
                     <Link
-                      href="/products/prod_1"
+                      href="/products/detail/prod_1"
                       className="flex items-center space-x-3 w-full"
                     >
                       <img
@@ -459,7 +470,7 @@ export default async function ProductCategoryPage({
                   </div>
                   <div className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
                     <Link
-                      href="/products/prod_2"
+                      href="/products/detail/prod_2"
                       className="flex items-center space-x-3 w-full"
                     >
                       <img
@@ -482,7 +493,7 @@ export default async function ProductCategoryPage({
                   </div>
                   <div className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
                     <Link
-                      href="/products/prod_3"
+                      href="/products/detail/prod_3"
                       className="flex items-center space-x-3 w-full"
                     >
                       <img

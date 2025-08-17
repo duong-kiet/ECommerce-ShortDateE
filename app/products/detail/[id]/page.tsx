@@ -1,4 +1,4 @@
-import { getProductById, getProducts } from "@/lib/mock-data";
+import { getProductById, getProducts } from "@/lib/firebase/firestore-app-data";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -10,6 +10,8 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { Product } from "@/lib/data";
+import Image from "next/image";
 
 interface ProductDetailPageProps {
   params: {
@@ -21,13 +23,13 @@ export default async function ProductDetailPage({
   params,
 }: ProductDetailPageProps) {
   const { id } = params;
-  const product = getProductById(id);
+  const product = await getProductById(id);
 
   if (!product) {
     notFound();
   }
 
-  const relatedProducts = getProducts().slice(0, 4);
+  const relatedProducts: Product[] = (await getProducts()).slice(0, 4);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -59,10 +61,13 @@ export default async function ProductDetailPage({
             {/* Main Image */}
             <div className="relative mb-4">
               <Link href={product.images[0]} target="_blank">
-                <img
+                <Image
                   src={product.images[0]}
                   alt={product.name}
+                  width={800}
+                  height={384}
                   className="w-full h-96 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                  priority
                 />
               </Link>
               {/* Sale Badge */}
@@ -76,9 +81,11 @@ export default async function ProductDetailPage({
               {product.images.slice(0, 4).map((image, index) => (
                 <div key={index} className="relative">
                   <Link href={image} target="_blank">
-                    <img
+                    <Image
                       src={image}
                       alt={`${product.name} ${index + 1}`}
+                      width={200}
+                      height={96}
                       className="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
                     />
                   </Link>
@@ -156,6 +163,7 @@ export default async function ProductDetailPage({
                   value="1"
                   className="w-16 text-center border-0 focus:outline-none focus:ring-0"
                   min="1"
+                  readOnly
                 />
                 <button className="px-3 py-2 hover:bg-gray-50">
                   <ChevronRight className="w-4 h-4" />
@@ -364,9 +372,11 @@ export default async function ProductDetailPage({
                       href="/products/prod_1"
                       className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                     >
-                      <img
+                      <Image
                         src="https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=60&h=60&fit=crop"
                         alt="Orange Juice"
+                        width={60}
+                        height={60}
                         className="w-12 h-12 rounded-lg object-cover"
                       />
                       <div className="flex-1">
@@ -385,9 +395,11 @@ export default async function ProductDetailPage({
                       href="/products/prod_2"
                       className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                     >
-                      <img
+                      <Image
                         src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=60&h=60&fit=crop"
                         alt="Banana"
+                        width={60}
+                        height={60}
                         className="w-12 h-12 rounded-lg object-cover"
                       />
                       <div className="flex-1">
@@ -406,9 +418,11 @@ export default async function ProductDetailPage({
                       href="/products/prod_3"
                       className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                     >
-                      <img
+                      <Image
                         src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=60&h=60&fit=crop"
                         alt="Red Jacket"
+                        width={60}
+                        height={60}
                         className="w-12 h-12 rounded-lg object-cover"
                       />
                       <div className="flex-1">
@@ -465,9 +479,11 @@ export default async function ProductDetailPage({
               >
                 {/* Product Image */}
                 <div className="relative">
-                  <img
+                  <Image
                     src={relatedProduct.images[0]}
                     alt={relatedProduct.name}
+                    width={400}
+                    height={192}
                     className="w-full h-48 object-cover"
                   />
                   {/* Status Label */}

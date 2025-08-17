@@ -1,12 +1,12 @@
-import { getProducts } from "@/lib/mock-data";
 import { DealsOfTheDaySection } from "@/components/deals-of-the-day-section";
 import { ChevronDown, Search, ShoppingCart, Grid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import ProtectedRoute from "@/components/ui/protected-route";
+import { getProducts } from "@/lib/firebase/firestore-app-data";
 
 export default async function ProductsPage() {
-  const products = getProducts();
+  const products = await getProducts();
 
   return (
     <ProtectedRoute>

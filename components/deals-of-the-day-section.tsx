@@ -1,6 +1,6 @@
-"use client";
-
-import { MockProduct, getDealProducts } from "@/lib/mock-data";
+"use client"
+import { Product } from "@/lib/data";
+import { getDealProducts } from "@/lib/firebase/firestore-app-data";
 import { useState, useEffect } from "react";
 import { ProductCard } from "./product-card";
 import Link from "next/link";
@@ -80,7 +80,15 @@ function CountdownTimer({ endDate }: { endDate: string }) {
 }
 
 export function DealsOfTheDaySection() {
-  const dealProducts = getDealProducts();
+  const [dealProducts, setDealProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    async function fetchDealProducts() {
+      const products = await getDealProducts();
+      setDealProducts(products);
+    }
+    fetchDealProducts();
+  }, []);
 
   // Brand mapping cho deals
   const getBrandForDeal = (index: number) => {

@@ -1,9 +1,9 @@
 import { Header } from "@/components/header";
 import { Sidebar } from "@/components/sidebar";
 import { HeroBanner } from "@/components/hero-banner";
-import { ProductTypeSection } from "@/components/product-type-section";
+import ProductTypeSection from "@/components/product-type-section";
 import { AutoPricingBanner } from "@/components/auto-pricing-banner";
-import { CategoryGrid } from "@/components/category-grid";
+import CategoryGrid from "@/components/category-grid";
 export default function Home() {
   return (
       <div className="min-h-screen bg-gray-50">

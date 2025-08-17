@@ -1,13 +1,13 @@
 "use client";
 
-import { MockProduct, getProductsByCategory } from "@/lib/mock-data";
+import { Product, getProductsByCategory } from "@/lib/data";
 import { useState } from "react";
 import { ProductCard } from "./product-card";
 
 interface ProductSectionProps {
   title: string;
   categories?: string[];
-  products?: MockProduct[];
+  products?: Product[];
 }
 
 export function ProductSection({

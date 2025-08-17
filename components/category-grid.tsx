@@ -1,12 +1,9 @@
-"use client";
-
-import { getCategories } from "@/lib/mock-data";
+import { getCategories } from "@/lib/firebase/firestore-app-data";
 import Link from "next/link";
+import { Category } from "@/lib/data";
 
-export function CategoryGrid() {
-  const categories = getCategories();
-
-  // Lọc ra 2 phân khúc chính và các danh mục con
+export default async function CategoryGrid() {
+  const categories: Category[] = await getCategories();
   const mainCategories = categories.filter(
     (cat) => cat.id === "dry-foods" || cat.id === "fresh-foods"
   );
@@ -24,13 +21,11 @@ export function CategoryGrid() {
           Chọn phân khúc phù hợp với nhu cầu của bạn
         </p>
       </div>
-
-      {/* 2 phân khúc chính */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {mainCategories.map((category) => (
           <Link
             key={category.id}
-            href={`/category/${category.id}`}
+            href={`/products/${category.id}`}
             className="group relative overflow-hidden bg-white rounded-xl p-6 hover:shadow-lg transition-all duration-300 border border-gray-100"
           >
             <div className="flex items-start justify-between">
@@ -62,8 +57,6 @@ export function CategoryGrid() {
           </Link>
         ))}
       </div>
-
-      {/* Danh mục con */}
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Danh mục chi tiết
@@ -72,7 +65,7 @@ export function CategoryGrid() {
           {subCategories.map((category) => (
             <Link
               key={category.id}
-              href={`/category/${category.id}`}
+              href={`/products/${category.id}`}
               className="group flex flex-col items-center p-4 bg-white rounded-lg hover:shadow-md transition-shadow duration-300 border border-gray-100"
             >
               <div className="text-2xl mb-2 group-hover:scale-110 transition-transform duration-300">

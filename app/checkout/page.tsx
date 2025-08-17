@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCartStore } from "@/store/cart-store";
 import { checkoutAction } from "./checkout-action";
+import { formatPrice } from "@/lib/data";
 import ProtectedRoute from "@/components/ui/protected-route";
 
 export default function CheckoutPage() {
@@ -36,7 +37,7 @@ export default function CheckoutPage() {
                   <div className="flex justify-between">
                     <span className="font-medium">{item.name}</span>
                     <span className="font-semibold">
-                      ${((item.price * item.quantity) / 100).toFixed(2)}
+                      {formatPrice(item.price * item.quantity)}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
@@ -62,7 +63,7 @@ export default function CheckoutPage() {
               ))}
             </ul>
             <div className="mt-4 border-t pt-2 text-lg font-semibold">
-              Total: ${(total / 100).toFixed(2)}
+              Total: {formatPrice(total)}
             </div>
           </CardContent>
         </Card>
