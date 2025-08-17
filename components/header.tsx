@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import {
-  ChevronDown,
   Heart,
   MapPin,
   Search,
@@ -29,9 +28,7 @@ export function Header() {
               <ShoppingCart className="w-5 h-5 text-white" />
             </div>
             <div>
-              <span className="text-2xl font-bold text-green-600">
-                FreshMart
-              </span>
+              <span className="text-2xl font-bold text-green-600">Shoda</span>
               <span className="text-sm text-gray-600 block">Auto-Pricing</span>
             </div>
           </Link>
@@ -129,7 +126,7 @@ export function Header() {
           </nav>
 
           <div className="flex items-center space-x-4">
-            <span className="text-xs text-gray-500">Hotline: 1900-xxxx</span>
+            <span className="text-xs text-gray-500">Hotline: 0123456789</span>
             <div className="flex items-center space-x-2 text-xs text-gray-500">
               <span>🕒</span>
               <span>Mở cửa: 7:00 - 22:00</span>

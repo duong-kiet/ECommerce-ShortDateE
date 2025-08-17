@@ -1,6 +1,6 @@
 "use client";
 
-import { MockProduct, getDealProducts } from "@/lib/mock-data";
+import { getDealProducts } from "@/lib/mock-data";
 import { useState, useEffect } from "react";
 import { ProductCard } from "./product-card";
 import Link from "next/link";
@@ -105,7 +105,7 @@ export function DealsOfTheDaySection() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
         {dealProducts.map((product, index) => (
           <div key={product.id} className="relative">
             {product.dealEndDate && (

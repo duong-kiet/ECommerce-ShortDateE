@@ -28,10 +28,9 @@ export function CategoryGrid() {
       {/* 2 phân khúc chính */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {mainCategories.map((category) => (
-          <Link
+          <div
             key={category.id}
-            href={`/category/${category.id}`}
-            className="group relative overflow-hidden bg-white rounded-xl p-6 hover:shadow-lg transition-all duration-300 border border-gray-100"
+            className="group relative overflow-hidden bg-[#ecf9f2] rounded-xl p-6 hover:shadow-lg transition-all duration-300 border border-gray-100"
           >
             <div className="flex items-start justify-between">
               <div className="flex-1">
@@ -46,20 +45,12 @@ export function CategoryGrid() {
                     ? "Thực phẩm đóng gói, HSD 15-90 ngày"
                     : "Đồ ăn tươi, HSD 0-1 ngày"}
                 </p>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
-                    {category.productCount} sản phẩm
-                  </span>
-                  <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
-                    Auto-Pricing
-                  </span>
-                </div>
               </div>
               <div className="text-2xl text-gray-300 group-hover:text-gray-400 transition-colors">
                 →
               </div>
             </div>
-          </Link>
+          </div>
         ))}
       </div>
 
@@ -70,10 +61,9 @@ export function CategoryGrid() {
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {subCategories.map((category) => (
-            <Link
+            <div
               key={category.id}
-              href={`/category/${category.id}`}
-              className="group flex flex-col items-center p-4 bg-white rounded-lg hover:shadow-md transition-shadow duration-300 border border-gray-100"
+              className="group flex flex-col items-center p-4 bg-[#ecf9f2] rounded-lg hover:shadow-md transition-shadow duration-300 border border-gray-100"
             >
               <div className="text-2xl mb-2 group-hover:scale-110 transition-transform duration-300">
                 {category.icon}
@@ -81,19 +71,7 @@ export function CategoryGrid() {
               <h4 className="text-sm font-medium text-gray-900 text-center line-clamp-2">
                 {category.name}
               </h4>
-              <span className="text-xs text-gray-500 mt-1">
-                ({category.productCount})
-              </span>
-              <span
-                className={`text-xs px-2 py-1 rounded-full mt-1 ${
-                  category.productType === "fresh"
-                    ? "bg-green-100 text-green-800"
-                    : "bg-blue-100 text-blue-800"
-                }`}
-              >
-                {category.productType === "fresh" ? "Tươi" : "Khô"}
-              </span>
-            </Link>
+            </div>
           ))}
         </div>
       </div>

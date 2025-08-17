@@ -3,9 +3,9 @@ import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: "Về chúng tôi | FreshMart",
+  title: "Về chúng tôi | Shoda",
   description:
-    "Tìm hiểu về FreshMart – cửa hàng thực phẩm với tính năng Auto-Pricing, giao nhanh và chất lượng đảm bảo.",
+    "Tìm hiểu về Shoda – cửa hàng thực phẩm với tính năng Auto-Pricing, giao nhanh và chất lượng đảm bảo.",
 };
 
 export default function AboutPage() {
@@ -19,7 +19,7 @@ export default function AboutPage() {
           <section className="bg-white rounded-2xl border shadow-sm p-8 lg:p-12 mb-10">
             <div className="max-w-3xl">
               <h1 className="text-3xl lg:text-4xl font-extrabold tracking-tight text-gray-900 mb-4">
-                Về FreshMart
+                Về Shoda
               </h1>
               <p className="text-gray-600 text-base lg:text-lg">
                 Chúng tôi mang thực phẩm chất lượng đến tận tay bạn, nhanh chóng
@@ -109,8 +109,8 @@ export default function AboutPage() {
                 Cam kết của chúng tôi
               </h3>
               <p className="text-gray-600 text-sm mb-3">
-                FreshMart cam kết mang đến trải nghiệm mua sắm đơn giản, giá hợp
-                lý và dịch vụ hậu mãi chu đáo.
+                Shoda cam kết mang đến trải nghiệm mua sắm đơn giản, giá hợp lý
+                và dịch vụ hậu mãi chu đáo.
               </p>
               <p className="text-gray-600 text-sm">
                 Nếu bạn có góp ý hoặc câu hỏi, hãy liên hệ với chúng tôi bất kỳ
@@ -123,7 +123,7 @@ export default function AboutPage() {
           <section className="bg-green-50 border border-green-200 rounded-2xl p-6 lg:p-10 flex items-center justify-between flex-col md:flex-row gap-4">
             <div>
               <h2 className="text-xl lg:text-2xl font-bold text-gray-900 mb-2">
-                Sẵn sàng mua sắm cùng FreshMart?
+                Sẵn sàng mua sắm cùng Shoda?
               </h2>
               <p className="text-gray-700 text-sm">
                 Khám phá các sản phẩm tươi ngon với giá tốt được cập nhật tự

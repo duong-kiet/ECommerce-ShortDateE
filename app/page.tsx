@@ -1,15 +1,15 @@
 import { Header } from "@/components/header";
 import { Sidebar } from "@/components/sidebar";
-import { HeroBanner } from "@/components/hero-banner";
+import { HeroPricingCarousel } from "@/components/hero-pricing-carousel";
+import { FreshFoodCarousel } from "@/components/fresh-food-carousel";
 import { ProductTypeSection } from "@/components/product-type-section";
-import { AutoPricingBanner } from "@/components/auto-pricing-banner";
 import { CategoryGrid } from "@/components/category-grid";
+import PromoCards from "@/components/promo-cards";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-
       <main className="py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar */}
@@ -19,14 +19,16 @@ export default function Home() {
 
           {/* Main Content */}
           <div className="flex-1 px-4 lg:px-8 space-y-8">
-            {/* Hero Banner */}
-            <HeroBanner />
+            {/* Carousel 1: Hero Banner + Auto Pricing System */}
+            <HeroPricingCarousel />
 
-            {/* Auto-Pricing Banner */}
-            <AutoPricingBanner />
+            {/* Carousel 2: Fresh Food Daily Deals (Autoplay) */}
+            <FreshFoodCarousel />
 
             {/* Shop by Categories */}
             <CategoryGrid />
+
+            <PromoCards />
 
             {/* Thực phẩm khô - Đóng gói */}
             <ProductTypeSection

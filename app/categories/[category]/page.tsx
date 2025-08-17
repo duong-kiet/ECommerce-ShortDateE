@@ -2,6 +2,7 @@ import { ProductList } from "@/components/product-list";
 import { getProducts } from "@/lib/mock-data";
 import { Sidebar } from "@/components/sidebar";
 import { DealsOfTheDaySection } from "@/components/deals-of-the-day-section";
+import { Header } from "@/components/header";
 import {
   ChevronDown,
   Search,
@@ -13,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ProductCard } from "@/components/product-card";
 
 interface ProductCategoryPageProps {
   params: {
@@ -24,6 +26,7 @@ export default async function ProductCategoryPage({
   params,
 }: ProductCategoryPageProps) {
   const { category } = params;
+  // console.log(category); drink
   const products = getProducts();
 
   // Mock category mapping
@@ -51,6 +54,11 @@ export default async function ProductCategoryPage({
       icon: "🥫",
       description: "Thực phẩm đóng hộp, bảo quản lâu dài",
     },
+    "dry-food": {
+      name: "Đồ khô",
+      icon: "🥫",
+      description: "Thực phẩm khô, bảo quản lâu dài",
+    },
   };
 
   const categoryInfo = categoryMap[category];
@@ -60,8 +68,9 @@ export default async function ProductCategoryPage({
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Header />
       {/* Header Section */}
-      <div className="bg-white border-b">
+      <div className="mt-8 py-8 bg-[#d8f1e5] rounded-xl">
         <div className="max-w-7xl mx-auto px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
@@ -69,7 +78,9 @@ export default async function ProductCategoryPage({
                 <span className="text-3xl">{categoryInfo.icon}</span>
                 {categoryInfo.name}
               </h1>
-              <p className="text-gray-600 mt-1">{categoryInfo.description}</p>
+              <p className="text-gray-600 mt-1 font-bold">
+                {categoryInfo.description}
+              </p>
               <div className="text-sm text-gray-500 mt-2">
                 <Link
                   href="/"
@@ -87,26 +98,6 @@ export default async function ProductCategoryPage({
                 {" > "}
                 <span className="text-gray-900">{categoryInfo.name}</span>
               </div>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm sản phẩm..."
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
-              </div>
-
-              {/* Cart */}
-              <Button variant="ghost" size="sm" className="relative">
-                <ShoppingCart className="w-5 h-5" />
-                <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  0
-                </span>
-              </Button>
             </div>
           </div>
         </div>
@@ -164,108 +155,24 @@ export default async function ProductCategoryPage({
               </div>
             </div>
 
-            {/* Product List - Vertical Layout */}
-            <div className="space-y-4">
-              {products.slice(0, 9).map((product) => (
-                <div
+            {/* Product List - Grid Layout */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {products.map((product, index) => (
+                <ProductCard
                   key={product.id}
-                  className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-                >
-                  <div className="flex">
-                    {/* Product Image */}
-                    <div className="relative w-48 h-48 flex-shrink-0">
-                      <Link href={`/products/${product.id}`}>
-                        <img
-                          src={product.images[0]}
-                          alt={product.name}
-                          className="w-full h-full object-cover hover:opacity-80 transition-opacity cursor-pointer"
-                        />
-                      </Link>
-                      {/* Status Label */}
-                      {parseInt(product.id.split("_")[1]) % 4 === 0 && (
-                        <span className="absolute top-2 left-2 bg-pink-500 text-white text-xs px-2 py-1 rounded-full">
-                          Hot
-                        </span>
-                      )}
-                      {parseInt(product.id.split("_")[1]) % 4 === 1 && (
-                        <span className="absolute top-2 left-2 bg-blue-400 text-white text-xs px-2 py-1 rounded-full">
-                          Sale
-                        </span>
-                      )}
-                      {parseInt(product.id.split("_")[1]) % 4 === 2 && (
-                        <span className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                          New
-                        </span>
-                      )}
-                      {parseInt(product.id.split("_")[1]) % 4 === 3 && (
-                        <span className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
-                          Best
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Product Info */}
-                    <div className="flex-1 p-6">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="text-sm text-gray-500 mb-1">
-                            Hodo Foods
-                          </div>
-                          <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                            <Link
-                              href={`/products/${product.id}`}
-                              className="hover:text-green-600 transition-colors"
-                            >
-                              {product.name}
-                            </Link>
-                          </h3>
-
-                          {/* Rating */}
-                          <div className="flex items-center space-x-1 mb-3">
-                            <span className="text-yellow-400">★</span>
-                            <span className="text-sm text-gray-600">5.0</span>
-                            <span className="text-sm text-gray-500">100g</span>
-                          </div>
-
-                          {/* Description */}
-                          <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                            elit. Sed do eiusmod tempor incididunt ut labore et
-                            dolore magna aliqua. Ut enim ad minim veniam, quis
-                            nostrud exercitation ullamco laboris.
-                          </p>
-
-                          {/* Price */}
-                          <div className="flex items-center space-x-2 mb-4">
-                            <span className="text-2xl font-bold text-green-600">
-                              {product.default_price.unit_amount.toLocaleString()}
-                              đ
-                            </span>
-                            <span className="text-lg text-gray-500 line-through">
-                              {product.old_price
-                                ? product.old_price.toLocaleString()
-                                : (
-                                    product.default_price.unit_amount * 1.1
-                                  ).toLocaleString()}
-                              đ
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="flex flex-col space-y-3 ml-6">
-                          <Button className="w-32 bg-green-600 hover:bg-green-700">
-                            <ShoppingCart className="w-4 h-4 mr-2" />
-                            Thêm vào giỏ
-                          </Button>
-                          <Button variant="outline" size="sm" className="w-32">
-                            So sánh
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  product={product}
+                  label={
+                    index === 0
+                      ? "Hot"
+                      : index === 1
+                      ? "Sale"
+                      : index === 2
+                      ? "New"
+                      : undefined
+                  }
+                  rating={product.rating}
+                  brand="By NestFood"
+                />
               ))}
             </div>
 
@@ -299,19 +206,8 @@ export default async function ProductCategoryPage({
                 <div className="space-y-3 max-h-48 overflow-y-auto">
                   <div className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
                     <div className="flex items-center space-x-3">
-                      <span className="text-xl">🥛</span>
-                      <span className="text-sm text-gray-700">
-                        Sữa & Sản phẩm từ sữa
-                      </span>
-                    </div>
-                    <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
-                      3
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                    <div className="flex items-center space-x-3">
-                      <span className="text-xl">👕</span>
-                      <span className="text-sm text-gray-700">Quần áo</span>
+                      <span className="text-xl">🍜</span>
+                      <span className="text-sm text-gray-700">Mì tôm</span>
                     </div>
                     <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
                       4
@@ -319,10 +215,17 @@ export default async function ProductCategoryPage({
                   </div>
                   <div className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
                     <div className="flex items-center space-x-3">
-                      <span className="text-xl">🐕</span>
-                      <span className="text-sm text-gray-700">
-                        Thức ăn thú cưng
-                      </span>
+                      <span className="text-xl">🥤</span>
+                      <span className="text-sm text-gray-700">Nước</span>
+                    </div>
+                    <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
+                      4
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                    <div className="flex items-center space-x-3">
+                      <span className="text-xl">🥛</span>
+                      <span className="text-sm text-gray-700">Sữa</span>
                     </div>
                     <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
                       7
@@ -330,10 +233,8 @@ export default async function ProductCategoryPage({
                   </div>
                   <div className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
                     <div className="flex items-center space-x-3">
-                      <span className="text-xl">🧁</span>
-                      <span className="text-sm text-gray-700">
-                        Nguyên liệu làm bánh
-                      </span>
+                      <span className="text-xl">🍪</span>
+                      <span className="text-sm text-gray-700">Bánh kẹo</span>
                     </div>
                     <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
                       11
@@ -341,10 +242,8 @@ export default async function ProductCategoryPage({
                   </div>
                   <div className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
                     <div className="flex items-center space-x-3">
-                      <span className="text-xl">🍎</span>
-                      <span className="text-sm text-gray-700">
-                        Trái cây tươi
-                      </span>
+                      <span className="text-xl">🌾</span>
+                      <span className="text-sm text-gray-700">Ngũ cốc</span>
                     </div>
                     <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
                       14

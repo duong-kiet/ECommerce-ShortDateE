@@ -4,7 +4,9 @@ import { Sidebar } from "@/components/sidebar";
 import { DealsOfTheDaySection } from "@/components/deals-of-the-day-section";
 import { ChevronDown, Search, ShoppingCart, Grid, List } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Header } from "@/components/header";
 import { AddToCartButton } from "@/components/add-to-cart-button";
+import React from 'react';
 
 export default async function ProductsPage() {
   const products = getProducts();
@@ -410,13 +412,13 @@ export default async function ProductsPage() {
 
                     {/* Action Buttons */}
                     <div className="flex items-center space-x-2">
-                      <AddToCartButton
+                      {/* <AddToCartButton
                         id={product.id}
                         name={product.name}
                         price={product.default_price.unit_amount}
                         imageUrl={product.images[0]}
                         className="flex-1 bg-green-600 hover:bg-green-700"
-                      >
+                      > */}
                         <ShoppingCart className="w-4 h-4 mr-2" />
                         Thêm vào giỏ
                       </AddToCartButton>

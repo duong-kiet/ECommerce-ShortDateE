@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Filter, Clock, TrendingDown, ShoppingCart } from "lucide-react";
+import { Filter, Clock, TrendingDown, ShoppingCart, Flame } from "lucide-react";
 import { useState } from "react";
 import Image from "next/image";
 
@@ -17,7 +17,7 @@ export function Sidebar({
   onCategoryChange,
   onFilterChange,
 }: SidebarProps) {
-  const [priceRange, setPriceRange] = useState([5000, 100000]);
+  const [priceRange, setPriceRange] = useState([5000, 1000000]);
   const [selectedProductTypes, setSelectedProductTypes] = useState<string[]>(
     []
   );
@@ -27,102 +27,89 @@ export function Sidebar({
 
   const categories = [
     {
-      id: "dry-foods",
-      name: "Thực phẩm khô",
+      name: "Đồ hộp",
       icon: "🥫",
       count: 8,
       type: "dry",
+      slug: "do-hop",
     },
     {
-      id: "fresh-foods",
-      name: "Đồ ăn tươi",
+      name: "Đồ tươi",
       icon: "🥗",
       count: 6,
       type: "fresh",
+      slug: "do-tuoi",
     },
     {
-      id: "instant-noodles",
-      name: "Mì gói & Mì ăn liền",
+      name: "Mì tôm",
       icon: "🍜",
       count: 4,
       type: "dry",
+      slug: "mi-tom",
     },
+
     {
-      id: "canned-foods",
-      name: "Đồ hộp (cá hộp, thịt hộp, rau củ hộp)",
-      icon: "🥫",
-      count: 5,
-      type: "dry",
-    },
-    {
-      id: "beverages",
-      name: "Nước giải khát (nước ngọt, nước tăng lực, trà đóng chai)",
+      name: "Nước giải khát",
       icon: "🥤",
       count: 6,
       type: "dry",
+      slug: "nuoc-giai-khat",
     },
     {
-      id: "dairy-products",
-      name: "Sữa & Sản phẩm từ sữa (sữa bột, sữa tươi đóng hộp)",
+      name: "Sữa",
       icon: "🥛",
       count: 1,
       type: "dry",
+      slug: "sua",
     },
     {
-      id: "snacks",
-      name: "Bánh kẹo (bánh quy, kẹo, chocolate)",
+      name: "Bánh kẹo",
       icon: "🍪",
       count: 4,
       type: "dry",
+      slug: "banh-keo",
     },
     {
-      id: "condiments",
-      name: "Gia vị & Nước chấm (muối, tiêu, nước mắm, dầu ăn)",
+      name: "Gia vị",
       icon: "🧂",
       count: 3,
       type: "dry",
+      slug: "gia-vi",
     },
     {
-      id: "cereals",
-      name: "Ngũ cốc & Hạt (gạo, yến mạch, hạt dinh dưỡng)",
+      name: "Ngũ cốc",
       icon: "🌾",
       count: 3,
       type: "dry",
+      slug: "ngu-coc",
     },
     {
-      id: "ready-meals",
-      name: "Cơm hộp & Bữa ăn sẵn (cơm gà, cơm thịt, salad hộp)",
+      name: "Cơm hộp",
       icon: "🍱",
       count: 4,
       type: "fresh",
+      slug: "com-hop",
     },
     {
-      id: "sandwiches",
-      name: "Sandwich & Bánh mì kẹp",
+      name: "Bánh mì",
       icon: "🥪",
       count: 3,
       type: "fresh",
+      slug: "banh-mi",
     },
     {
-      id: "sushi",
-      name: "Sushi & Đồ ăn Nhật",
+      name: "Sushi",
       icon: "🍣",
       count: 3,
       type: "fresh",
+      slug: "sushi",
     },
     {
-      id: "cooked-foods",
-      name: "Món nấu sẵn (từ bếp trung tâm: canh, súp, thịt nướng, rau củ hấp)",
+      name: "Canh",
       icon: "🍲",
       count: 4,
       type: "fresh",
-    },
-    {
-      id: "convenience-foods",
-      name: "Đồ ăn từ cửa hàng tiện lợi (bánh mì tươi, yogurt tươi, trái cây cắt sẵn)",
-      icon: "🏪",
-      count: 0,
-      type: "fresh",
+      slug: "canh",
     },
   ];
 
@@ -198,16 +185,16 @@ export function Sidebar({
       </Card>
 
       {/* Categories */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Danh mục</CardTitle>
+      <Card className="pt-0">
+        <CardHeader className="p-4 border-b border-gray-200 bg-[#dbfce7] text-[#00A63E]">
+          <CardTitle className="text-lg font-bold">Danh mục chi tiết</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <div className="max-h-64 overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-track]:bg-gray-100 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:hover:bg-gray-400">
-            <div className="space-y-1 p-3">
+            <div className="space-y-2 p-3">
               {categories.map((category) => (
                 <button
-                  key={category.id}
+                  key={category.slug}
                   onClick={() => onCategoryChange?.(category.id)}
                   className={`w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-all duration-200 ${
                     selectedCategory === category.id
@@ -219,7 +206,7 @@ export function Sidebar({
                     <span className="text-xl flex-shrink-0">
                       {category.icon}
                     </span>
-                    <span className="font-medium text-sm text-gray-700">
+                    <span className="font-medium text-sm text-gray-700 text-left">
                       {category.name}
                     </span>
                   </div>
@@ -245,9 +232,9 @@ export function Sidebar({
       </Card>
 
       {/* Price Filter */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Khoảng giá (VNĐ)</CardTitle>
+      <Card className="pt-0">
+        <CardHeader className="p-4 bg-[#dbfce7] text-[#00A63E]">
+          <CardTitle className="text-lg font-bold">Khoảng giá (VNĐ)</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
@@ -258,8 +245,8 @@ export function Sidebar({
             <div className="relative">
               <input
                 type="range"
-                min="0"
-                max="200000"
+                min="5000"
+                max="1000000"
                 value={priceRange[1]}
                 onChange={(e) =>
                   setPriceRange([priceRange[0], parseInt(e.target.value)])
@@ -272,9 +259,9 @@ export function Sidebar({
       </Card>
 
       {/* Product Type Filter */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Loại sản phẩm</CardTitle>
+      <Card className="pt-0">
+        <CardHeader className="p-4 bg-[#dbfce7] text-[#00A63E]">
+          <CardTitle className="text-lg font-bold">Loại sản phẩm</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           {productTypes.map((type) => (
@@ -298,9 +285,9 @@ export function Sidebar({
       </Card>
 
       {/* Expiry Range Filter */}
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-lg flex items-center gap-2">
+      <Card className="pt-0">
+        <CardHeader className="p-4 bg-[#dbfce7] text-[#00A63E]">
+          <CardTitle className="text-lg flex items-center gap-2 font-bold">
             <Clock className="w-4 h-4" />
             Hạn sử dụng
           </CardTitle>
@@ -339,8 +326,8 @@ export function Sidebar({
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center gap-2">
-            <TrendingDown className="w-4 h-4 text-red-500" />
-            Giảm giá tự động
+            <Flame className="w-6 h-6 text-red-500" />
+            Siêu Hot
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">

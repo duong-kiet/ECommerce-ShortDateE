@@ -94,6 +94,41 @@ export function ProductCard({
     return <Clock className="w-3 h-3" />;
   };
 
+  const [timeLeft, setTimeLeft] = useState({
+    hours: 2,
+    minutes: 45,
+    seconds: 30,
+  });
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft((prevTime) => {
+        let { hours, minutes, seconds } = prevTime;
+
+        seconds--;
+        if (seconds < 0) {
+          seconds = 59;
+          minutes--;
+          if (minutes < 0) {
+            minutes = 59;
+            hours--;
+            if (hours < 0) {
+              hours = 0;
+              minutes = 0;
+              seconds = 0;
+            }
+          }
+        }
+
+        return { hours, minutes, seconds };
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const formatTime = (time: any) => time.toString().padStart(2, "0");
+
   return (
     <Card className="group relative overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <CardContent className="p-0">
@@ -162,7 +197,7 @@ export function ProductCard({
         {/* Product Info */}
         <div className="p-4">
           {/* Product Name */}
-          <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+          <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 h-[50px]">
             {product.name}
           </h3>
 
@@ -191,17 +226,9 @@ export function ProductCard({
                 )}
             </div>
             {/* Product Type Badge - chỉ hiển thị cho sản phẩm không phải deals */}
-            {!isDeal && (
-              <span
-                className={`text-xs px-2 py-1 rounded ${
-                  product.productType === "fresh"
-                    ? "bg-green-100 text-green-800"
-                    : "bg-blue-100 text-blue-800"
-                }`}
-              >
-                {product.productType === "fresh" ? "Tươi" : "Khô"}
-              </span>
-            )}
+            <button className="p-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-md transition-colors duration-200">
+              <ShoppingCart />
+            </button>
           </div>
 
           {/* Add to Cart Button */}
@@ -217,6 +244,28 @@ export function ProductCard({
             <ShoppingCart className="w-4 h-4 mr-2" />
             Thêm vào giỏ
           </AddToCartButton> */}
+          {/* Price Section */}
+          <div className="mb-3">
+            {/* Countdown Timer */}
+            <div className="bg-gradient-to-r from-red-500 to-red-600 text-white p-2 rounded-md text-center text-xs font-semibold shadow-md animate-pulse">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <span>⏰ Flash Sale kết thúc trong:</span>
+              </div>
+              <div className="flex justify-center gap-2 font-mono text-sm font-bold text-red-500">
+                <span className="bg-white bg-opacity-20 px-1 py-0.5 rounded min-w-[20px]">
+                  {formatTime(timeLeft.hours)}
+                </span>
+                <span>:</span>
+                <span className="bg-white bg-opacity-20 px-1 py-0.5 rounded min-w-[20px]">
+                  {formatTime(timeLeft.minutes)}
+                </span>
+                <span>:</span>
+                <span className="bg-white bg-opacity-20 px-1 py-0.5 rounded min-w-[20px]">
+                  {formatTime(timeLeft.seconds)}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>

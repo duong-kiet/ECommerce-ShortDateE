@@ -1,4 +1,4 @@
-export interface MockProduct {
+export interface Product {
   id: string;
   name: string;
   description: string;
@@ -19,6 +19,8 @@ export interface MockProduct {
   expiryDate: string; // Ngày hết hạn sử dụng
   originalPrice: number; // Giá gốc (không đổi)
   autoPricingEnabled: boolean; // Bật/tắt auto-pricing
+  // For search api
+  slug: string;
 }
 
 export interface Category {
@@ -26,138 +28,120 @@ export interface Category {
   name: string;
   icon: string;
   productCount: number;
+  description?: string;
   products: string[];
-  productType: "dry" | "fresh"; // Thêm loại sản phẩm cho category
+  productType: "dry" | "fresh";
+  slug: string;
 }
 
 export const categories: Category[] = [
   {
-    id: "dry-foods",
+    id: "1",
     name: "Thực phẩm khô",
     icon: "🥫",
     productCount: 8,
-    products: [
-      "prod_1",
-      "prod_2",
-      "prod_3",
-      "prod_4",
-      "prod_5",
-      "prod_6",
-      "prod_7",
-      "prod_8",
-    ],
+    products: ["1", "2", "3", "4", "5", "6", "7", "8"],
     productType: "dry",
+    slug: "thuc-pham-kho",
   },
   {
-    id: "fresh-foods",
-    name: "Đồ ăn tươi",
+    id: "2",
+    name: "Thực phẩm tươi",
     icon: "🥗",
     productCount: 6,
-    products: ["prod_9", "prod_10", "prod_11", "prod_12", "prod_13", "prod_14"],
+    products: ["9", "10", "11", "12", "13", "14"],
     productType: "fresh",
+    slug: "thuc-pham-tuoi",
   },
   {
-    id: "instant-noodles",
-    name: "Mì gói & Mì ăn liền",
+    id: "3",
+    name: "Mì gói",
     icon: "🍜",
     productCount: 4,
-    products: ["prod_15", "prod_16", "prod_17", "prod_18"],
+    products: ["15", "16", "17", "18"],
     productType: "dry",
+    slug: "mi-goi",
   },
   {
-    id: "canned-foods",
-    name: "Đồ hộp (cá hộp, thịt hộp, rau củ hộp)",
+    id: "4",
+    name: "Đồ hộp",
     icon: "🥫",
     productCount: 5,
-    products: ["prod_19", "prod_20", "prod_21", "prod_22", "prod_23"],
+    products: ["19", "20", "21", "22", "23"],
     productType: "dry",
+    slug: "do-hop",
   },
   {
-    id: "beverages",
-    name: "Nước giải khát (nước ngọt, nước tăng lực, trà đóng chai)",
+    id: "5",
+    name: "Nước giải khát",
     icon: "🥤",
     productCount: 6,
-    products: [
-      "prod_24",
-      "prod_25",
-      "prod_26",
-      "prod_27",
-      "prod_28",
-      "prod_29",
-    ],
+    products: ["24", "25", "26", "27", "28", "29"],
     productType: "dry",
+    slug: "nuoc-giai-khat",
   },
   {
-    id: "dairy-products",
-    name: "Sữa & Sản phẩm từ sữa (sữa bột, sữa tươi đóng hộp)",
+    id: "6",
+    name: "Sản phẩm sữa",
     icon: "🥛",
     productCount: 1,
-    products: ["prod_7"],
+    products: ["7"],
     productType: "dry",
+    slug: "san-pham-sua",
   },
   {
-    id: "snacks",
-    name: "Bánh kẹo (bánh quy, kẹo, chocolate)",
+    id: "7",
+    name: "Bánh kẹo",
     icon: "🍪",
     productCount: 4,
-    products: ["prod_30", "prod_31", "prod_32", "prod_33"],
+    products: ["30", "31", "32", "33"],
     productType: "dry",
+    slug: "banh-keo",
   },
   {
-    id: "condiments",
-    name: "Gia vị & Nước chấm (muối, tiêu, nước mắm, dầu ăn)",
+    id: "8",
+    name: "Gia vị",
     icon: "🧂",
     productCount: 3,
-    products: ["prod_34", "prod_35", "prod_36"],
+    products: ["34", "35", "36"],
     productType: "dry",
+    slug: "gia-vi",
   },
   {
-    id: "cereals",
-    name: "Ngũ cốc & Hạt (gạo, yến mạch, hạt dinh dưỡng)",
+    id: "9",
+    name: "Ngũ cốc",
     icon: "🌾",
     productCount: 3,
-    products: ["prod_37", "prod_38", "prod_39"],
+    products: ["37", "38", "39"],
     productType: "dry",
+    slug: "ngu-coc",
   },
   {
-    id: "ready-meals",
-    name: "Cơm hộp & Bữa ăn sẵn (cơm gà, cơm thịt, salad hộp)",
+    id: "10",
+    name: "Bữa ăn sẵn",
     icon: "🍱",
     productCount: 4,
-    products: ["prod_40", "prod_41", "prod_42", "prod_43"],
+    products: ["40", "41", "42", "43"],
     productType: "fresh",
+    slug: "bua-an-san",
   },
   {
-    id: "sandwiches",
-    name: "Sandwich & Bánh mì kẹp",
+    id: "11",
+    name: "Bánh mì",
     icon: "🥪",
     productCount: 3,
-    products: ["prod_44", "prod_45", "prod_46"],
+    products: ["44", "45", "46"],
     productType: "fresh",
+    slug: "banh-mi",
   },
   {
-    id: "sushi",
-    name: "Sushi & Đồ ăn Nhật",
+    id: "12",
+    name: "Đồ Nhật",
     icon: "🍣",
     productCount: 3,
-    products: ["prod_47", "prod_48", "prod_49"],
+    products: ["47", "48", "49"],
     productType: "fresh",
-  },
-  {
-    id: "cooked-foods",
-    name: "Món nấu sẵn (từ bếp trung tâm: canh, súp, thịt nướng, rau củ hấp)",
-    icon: "🍲",
-    productCount: 4,
-    products: ["prod_50", "prod_51", "prod_52", "prod_53"],
-    productType: "fresh",
-  },
-  {
-    id: "convenience-foods",
-    name: "Đồ ăn từ cửa hàng tiện lợi (bánh mì tươi, yogurt tươi, trái cây cắt sẵn)",
-    icon: "🏪",
-    productCount: 0,
-    products: [],
-    productType: "fresh",
+    slug: "do-nhat",
   },
 ];
 
@@ -205,18 +189,20 @@ export function calculateAutoPrice(
   return Math.round(originalPrice * (1 - discountPercentage));
 }
 
-export const mockProducts: MockProduct[] = [
-  // DEALS OF THE DAY - Chính xác như trong hình ảnh
+export const products: Product[] = [
   {
-    id: "prod_1",
+    id: "1",
     name: "Seeds of Change Organic Quinoa, Brown",
     description: "Organic quinoa with rich nutty flavor",
     images: [
       "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=500&h=500&fit=crop",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz0OtStMPWsC0EsNH0I5NEFyU_wVSz2fa4tQ&s",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz0OtStMPWsC0EsNH0I5NEFyU_wVSz2fa4tQ&s",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRz0OtStMPWsC0EsNH0I5NEFyU_wVSz2fa4tQ&s",
     ],
     default_price: { id: "price_1", unit_amount: 3285, currency: "usd" },
     originalPrice: 3380,
-    category: "dry-foods",
+    category: "1",
     inStock: true,
     dealEndDate: new Date(
       Date.now() +
@@ -229,9 +215,10 @@ export const mockProducts: MockProduct[] = [
     productType: "dry",
     expiryDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
     autoPricingEnabled: false,
+    slug: "",
   },
   {
-    id: "prod_2",
+    id: "2",
     name: "Perdue Simply Smart Organics Gluten",
     description: "Organic gluten-free chicken strips",
     images: [
@@ -252,9 +239,10 @@ export const mockProducts: MockProduct[] = [
     productType: "dry",
     expiryDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
     autoPricingEnabled: false,
+    slug: "",
   },
   {
-    id: "prod_3",
+    id: "3",
     name: "Signature Wood-Fired Mushroom",
     description: "Artisan wood-fired mushroom blend",
     images: [
@@ -275,9 +263,10 @@ export const mockProducts: MockProduct[] = [
     productType: "dry",
     expiryDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
     autoPricingEnabled: false,
+    slug: "",
   },
   {
-    id: "prod_4",
+    id: "4",
     name: "Simply Lemonade with Raspberry Juice",
     description: "Refreshing lemonade with raspberry",
     images: [
@@ -298,11 +287,12 @@ export const mockProducts: MockProduct[] = [
     productType: "dry",
     expiryDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(),
     autoPricingEnabled: false,
+    slug: "",
   },
 
   // DRY FOODS - Thực phẩm khô
   {
-    id: "prod_5",
+    id: "5",
     name: "Mì gói Hảo Hảo chua cay",
     description: "Mì gói hương vị chua cay đậm đà",
     images: [
@@ -316,9 +306,10 @@ export const mockProducts: MockProduct[] = [
     productType: "dry",
     expiryDate: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000).toISOString(), // 45 days
     autoPricingEnabled: true,
+    slug: "",
   },
   {
-    id: "prod_6",
+    id: "6",
     name: "Cá hộp ngừ đại dương",
     description: "Cá ngừ đại dương đóng hộp, giàu protein",
     images: [
@@ -332,9 +323,10 @@ export const mockProducts: MockProduct[] = [
     productType: "dry",
     expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
     autoPricingEnabled: true,
+    slug: "",
   },
   {
-    id: "prod_7",
+    id: "7",
     name: "Sữa tươi Vinamilk 100%",
     description: "Sữa tươi nguyên chất, không đường",
     images: [
@@ -348,9 +340,10 @@ export const mockProducts: MockProduct[] = [
     productType: "dry",
     expiryDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days
     autoPricingEnabled: true,
+    slug: "",
   },
   {
-    id: "prod_8",
+    id: "8",
     name: "Bánh Oreo Original",
     description: "Bánh quy kem vani, hương vị truyền thống",
     images: [
@@ -364,9 +357,10 @@ export const mockProducts: MockProduct[] = [
     productType: "dry",
     expiryDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(), // 60 days
     autoPricingEnabled: true,
+    slug: "",
   },
   {
-    id: "prod_9",
+    id: "9",
     name: "Nước mắm Phú Quốc 40N",
     description: "Nước mắm truyền thống, độ đạm 40N",
     images: [
@@ -380,9 +374,10 @@ export const mockProducts: MockProduct[] = [
     productType: "dry",
     expiryDate: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(), // 1 year
     autoPricingEnabled: true,
+    slug: "",
   },
   {
-    id: "prod_10",
+    id: "10",
     name: "Ngũ cốc Nestlé Fitness",
     description: "Ngũ cốc ăn sáng, giàu chất xơ",
     images: [
@@ -396,11 +391,12 @@ export const mockProducts: MockProduct[] = [
     productType: "dry",
     expiryDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString(), // 90 days
     autoPricingEnabled: true,
+    slug: "",
   },
 
   // FRESH FOODS - Đồ ăn tươi
   {
-    id: "prod_11",
+    id: "11",
     name: "Cơm hộp thịt kho tàu",
     description: "Cơm hộp với thịt kho tàu truyền thống",
     images: [
@@ -414,9 +410,10 @@ export const mockProducts: MockProduct[] = [
     productType: "fresh",
     expiryDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day
     autoPricingEnabled: true,
+    slug: "",
   },
   {
-    id: "prod_12",
+    id: "12",
     name: "Sandwich gà nướng",
     description: "Sandwich với gà nướng và rau tươi",
     images: [
@@ -430,9 +427,10 @@ export const mockProducts: MockProduct[] = [
     productType: "fresh",
     expiryDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day
     autoPricingEnabled: true,
+    slug: "",
   },
   {
-    id: "prod_13",
+    id: "13",
     name: "Sushi cá hồi 8 miếng",
     description: "Sushi cá hồi tươi, 8 miếng",
     images: [
@@ -446,9 +444,10 @@ export const mockProducts: MockProduct[] = [
     productType: "fresh",
     expiryDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day
     autoPricingEnabled: true,
+    slug: "",
   },
   {
-    id: "prod_14",
+    id: "14",
     name: "Phở bò nấu sẵn",
     description: "Phở bò nấu sẵn từ bếp trung tâm",
     images: [
@@ -462,9 +461,10 @@ export const mockProducts: MockProduct[] = [
     productType: "fresh",
     expiryDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day
     autoPricingEnabled: true,
+    slug: "",
   },
   {
-    id: "prod_15",
+    id: "15",
     name: "Bún chả Hà Nội",
     description: "Bún chả truyền thống Hà Nội",
     images: [
@@ -478,9 +478,10 @@ export const mockProducts: MockProduct[] = [
     productType: "fresh",
     expiryDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day
     autoPricingEnabled: true,
+    slug: "",
   },
   {
-    id: "prod_16",
+    id: "16",
     name: "Cơm tấm sườn nướng",
     description: "Cơm tấm với sườn nướng thơm ngon",
     images: [
@@ -494,11 +495,12 @@ export const mockProducts: MockProduct[] = [
     productType: "fresh",
     expiryDate: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day
     autoPricingEnabled: true,
+    slug: "",
   },
 
   // More dry foods
   {
-    id: "prod_17",
+    id: "17",
     name: "Mì gói 3 Miền tôm chua cay",
     description: "Mì gói hương vị tôm chua cay",
     images: [
@@ -512,9 +514,10 @@ export const mockProducts: MockProduct[] = [
     productType: "dry",
     expiryDate: new Date(Date.now() + 50 * 24 * 60 * 60 * 1000).toISOString(), // 50 days
     autoPricingEnabled: true,
+    slug: "",
   },
   {
-    id: "prod_18",
+    id: "18",
     name: "Thịt hộp SPAM",
     description: "Thịt hộp SPAM truyền thống",
     images: [
@@ -528,17 +531,18 @@ export const mockProducts: MockProduct[] = [
     productType: "dry",
     expiryDate: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000).toISOString(), // 25 days
     autoPricingEnabled: true,
+    slug: "",
   },
 ];
 
-export const getProducts = () => mockProducts;
+export const getProducts = () => products;
 
 export const getProductById = (id: string) => {
-  return mockProducts.find((product) => product.id === id);
+  return products.find((product) => product.id === id);
 };
 
 export const getProductsByCategory = (categoryId: string) => {
-  return mockProducts.filter((product) => product.category === categoryId);
+  return products.filter((product) => product.category === categoryId);
 };
 
 export const getCategories = () => categories;
@@ -548,15 +552,15 @@ export const getCategoryById = (id: string) => {
 };
 
 export const getDealProducts = () => {
-  return mockProducts.filter((product) => product.dealEndDate);
+  return products.filter((product) => product.dealEndDate);
 };
 
 // Get products by type
 export const getProductsByType = (type: "dry" | "fresh") => {
-  return mockProducts.filter((product) => product.productType === type);
+  return products.filter((product) => product.productType === type);
 };
 
 // Get products with auto-pricing enabled
 export const getAutoPricingProducts = () => {
-  return mockProducts.filter((product) => product.autoPricingEnabled);
+  return products.filter((product) => product.autoPricingEnabled);
 };

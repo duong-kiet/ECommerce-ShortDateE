@@ -3,7 +3,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
-import { Clock, TrendingDown, ShoppingCart } from "lucide-react";
 
 export function HeroBanner() {
   const [email, setEmail] = useState("");
@@ -51,25 +50,11 @@ export function HeroBanner() {
         </div>
 
         <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-br from-green-200/20 to-blue-200/20 rounded-lg"></div>
-          <div className="relative grid grid-cols-2 gap-4 opacity-60">
-            <div className="space-y-4">
-              <div className="w-24 h-24 bg-green-300 rounded-full mx-auto flex items-center justify-center text-2xl">
-                🥫
-              </div>
-              <div className="w-20 h-20 bg-blue-300 rounded-full mx-auto flex items-center justify-center text-xl">
-                🥗
-              </div>
-            </div>
-            <div className="space-y-4 pt-8">
-              <div className="w-20 h-20 bg-yellow-300 rounded-full mx-auto flex items-center justify-center text-xl">
-                🍜
-              </div>
-              <div className="w-16 h-16 bg-orange-300 rounded-full mx-auto flex items-center justify-center text-lg">
-                🥤
-              </div>
-            </div>
-          </div>
+          <img
+            src="https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?w=1200&h=450&fit=crop"
+            alt="Thực phẩm tươi ngon được đóng gói và trưng bày"
+            className="w-full rounded-xl object-cover h-56 md:h-72 lg:h-80"
+          />
         </div>
       </div>
     </div>

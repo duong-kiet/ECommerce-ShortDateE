@@ -4,7 +4,7 @@ import { Clock, TrendingDown, AlertTriangle } from "lucide-react";
 
 export function AutoPricingBanner() {
   return (
-    <section className="bg-gradient-to-r from-orange-50 to-red-50 py-8 -mx-4 lg:-mx-8 px-4 lg:px-8 mb-8">
+    <section className="bg-gradient-to-r from-orange-50 to-red-50 pt-10 pb-[74px] mx-4 lg:-mx-8 px-4 lg:px-8 mb-8">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-2 mb-3">
