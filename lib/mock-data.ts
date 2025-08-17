@@ -27,33 +27,15 @@ export interface Category {
   icon: string;
   productCount: number;
   products: string[];
-  productType: "dry" | "fresh"; // Thêm loại sản phẩm cho category
 }
 
 export const categories: Category[] = [
-  {
-    id: "dry-foods",
-    name: "Thực phẩm khô",
-    icon: "🥫",
-    productCount: 8,
-    products: [],
-    productType: "dry",
-  },
-  {
-    id: "fresh-foods",
-    name: "Đồ ăn tươi",
-    icon: "🥗",
-    productCount: 6,
-    products: [],
-    productType: "fresh",
-  },
   {
     id: "instant-noodles",
     name: "Mì gói & Mì ăn liền",
     icon: "🍜",
     productCount: 5,
     products: ["prod_5", "prod_17", "prod_51", "prod_52", "prod_53"],
-    productType: "dry",
   },
   {
     id: "canned-foods",
@@ -69,7 +51,6 @@ export const categories: Category[] = [
       "prod_22",
       "prod_23",
     ],
-    productType: "dry",
   },
   {
     id: "beverages",
@@ -85,7 +66,6 @@ export const categories: Category[] = [
       "prod_28",
       "prod_29",
     ],
-    productType: "dry",
   },
   {
     id: "dairy-products",
@@ -93,7 +73,6 @@ export const categories: Category[] = [
     icon: "🥛",
     productCount: 5,
     products: ["prod_7", "prod_54", "prod_55", "prod_56", "prod_57"],
-    productType: "dry",
   },
   {
     id: "snacks",
@@ -101,7 +80,6 @@ export const categories: Category[] = [
     icon: "🍪",
     productCount: 5,
     products: ["prod_8", "prod_30", "prod_31", "prod_32", "prod_33"],
-    productType: "dry",
   },
   {
     id: "condiments",
@@ -109,7 +87,6 @@ export const categories: Category[] = [
     icon: "🧂",
     productCount: 5,
     products: ["prod_9", "prod_34", "prod_35", "prod_36", "prod_58"],
-    productType: "dry",
   },
   {
     id: "cereals",
@@ -117,7 +94,6 @@ export const categories: Category[] = [
     icon: "🌾",
     productCount: 5,
     products: ["prod_1", "prod_10", "prod_37", "prod_38", "prod_39"],
-    productType: "dry",
   },
   {
     id: "ready-meals",
@@ -135,7 +111,6 @@ export const categories: Category[] = [
       "prod_42",
       "prod_43",
     ],
-    productType: "fresh",
   },
   {
     id: "sandwiches",
@@ -143,7 +118,6 @@ export const categories: Category[] = [
     icon: "🥪",
     productCount: 5,
     products: ["prod_12", "prod_44", "prod_45", "prod_46", "prod_59"],
-    productType: "fresh",
   },
   {
     id: "sushi",
@@ -151,7 +125,6 @@ export const categories: Category[] = [
     icon: "🍣",
     productCount: 5,
     products: ["prod_13", "prod_47", "prod_48", "prod_49", "prod_60"],
-    productType: "fresh",
   },
   {
     id: "cooked-foods",
@@ -159,7 +132,6 @@ export const categories: Category[] = [
     icon: "🍲",
     productCount: 5,
     products: ["prod_3", "prod_50", "prod_61", "prod_62", "prod_63"],
-    productType: "fresh",
   },
   {
     id: "convenience-foods",
@@ -167,7 +139,6 @@ export const categories: Category[] = [
     icon: "🏪",
     productCount: 5,
     products: ["prod_64", "prod_65", "prod_66", "prod_67", "prod_68"],
-    productType: "fresh",
   },
 ];
 
@@ -1392,46 +1363,49 @@ export const getProductById = (id: string) => {
 // };
 
 export const getProductsByCategory = (categoryId: string) => {
-  // Nhóm tổng hợp dry
-  if (categoryId === "dry-foods") {
-    const drySubIds = categories
-      .filter(c => c.productType === "dry" && c.id !== "dry-foods")
-      .map(c => c.id);
+  // // Nhóm tổng hợp dry
+  // if (categoryId === "dry-foods") {
+  //   const drySubIds = categories
+  //     .filter((c) => c.productType === "dry" && c.id !== "dry-foods")
+  //     .map((c) => c.id);
 
-    const prodIds = drySubIds.flatMap(
-      id => categories.find(c => c.id === id)?.products ?? []
-    );
-    const unique = Array.from(new Set(prodIds));
+  //   const prodIds = drySubIds.flatMap(
+  //     (id) => categories.find((c) => c.id === id)?.products ?? []
+  //   );
+  //   const unique = Array.from(new Set(prodIds));
 
-    const byId = new Map(mockProducts.map(p => [p.id, p] as const));
-    return unique.map(pid => byId.get(pid)).filter((p): p is MockProduct => Boolean(p));
-  }
+  //   const byId = new Map(mockProducts.map((p) => [p.id, p] as const));
+  //   return unique
+  //     .map((pid) => byId.get(pid))
+  //     .filter((p): p is MockProduct => Boolean(p));
+  // }
 
-  // Nhóm tổng hợp fresh
-  if (categoryId === "fresh-foods") {
-    const freshSubIds = categories
-      .filter(c => c.productType === "fresh" && c.id !== "fresh-foods")
-      .map(c => c.id);
+  // // Nhóm tổng hợp fresh
+  // if (categoryId === "fresh-foods") {
+  //   const freshSubIds = categories
+  //     .filter((c) => c.productType === "fresh" && c.id !== "fresh-foods")
+  //     .map((c) => c.id);
 
-    const prodIds = freshSubIds.flatMap(
-      id => categories.find(c => c.id === id)?.products ?? []
-    );
-    const unique = Array.from(new Set(prodIds));
+  //   const prodIds = freshSubIds.flatMap(
+  //     (id) => categories.find((c) => c.id === id)?.products ?? []
+  //   );
+  //   const unique = Array.from(new Set(prodIds));
 
-    const byId = new Map(mockProducts.map(p => [p.id, p] as const));
-    return unique.map(pid => byId.get(pid)).filter((p): p is MockProduct => Boolean(p));
-  }
+  //   const byId = new Map(mockProducts.map((p) => [p.id, p] as const));
+  //   return unique
+  //     .map((pid) => byId.get(pid))
+  //     .filter((p): p is MockProduct => Boolean(p));
+  // }
 
   // Category bình thường
-  const category = categories.find(c => c.id === categoryId);
+  const category = categories.find((c) => c.id === categoryId);
   if (!category) return [];
 
-  const byId = new Map(mockProducts.map(p => [p.id, p] as const));
+  const byId = new Map(mockProducts.map((p) => [p.id, p] as const));
   return category.products
-    .map(pid => byId.get(pid))
+    .map((pid) => byId.get(pid))
     .filter((p): p is MockProduct => Boolean(p));
 };
-
 
 export const getCategories = () => categories;
 

@@ -37,14 +37,14 @@ export default function ProductCategoryPage({
   }
 
   // Thông tin hiển thị cho header
-  const categoryInfo = {
-    name: categoryItem.name,
-    icon: categoryItem.icon,
-    description:
-      categoryItem.productType === "fresh"
-        ? "Đồ ăn tươi, cần dùng sớm"
-        : "Thực phẩm khô, bảo quản lâu dài",
-  };
+  // const categoryInfo = {
+  //   name: categoryItem.name,
+  //   icon: categoryItem.icon,
+  //   description:
+  //     categoryItem.productType === "fresh"
+  //       ? "Đồ ăn tươi, cần dùng sớm"
+  //       : "Thực phẩm khô, bảo quản lâu dài",
+  // };
 
   // Lọc sản phẩm theo đúng category id
   const products = getProductsByCategory(category);
@@ -56,11 +56,11 @@ export default function ProductCategoryPage({
         <div className="max-w-7xl mx-auto px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+              {/* <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
                 <span className="text-3xl">{categoryInfo.icon}</span>
                 {categoryInfo.name}
-              </h1>
-              <p className="text-gray-600 mt-1">{categoryInfo.description}</p>
+              </h1> */}
+              {/* <p className="text-gray-600 mt-1">{categoryInfo.description}</p> */}
               <div className="text-sm text-gray-500 mt-2">
                 <Link
                   href="/"
@@ -76,7 +76,7 @@ export default function ProductCategoryPage({
                   Sản phẩm
                 </Link>
                 {" > "}
-                <span className="text-gray-900">{categoryInfo.name}</span>
+                {/* <span className="text-gray-900">{categoryInfo.name}</span> */}
               </div>
             </div>
 
