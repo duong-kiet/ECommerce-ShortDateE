@@ -1,10 +1,10 @@
 "use client";
 
-import { MockProduct } from "@/lib/mock-data";
+import { Product } from "@/lib/mock-data";
 import { ProductCard } from "./product-card";
 
 interface ProductListProps {
-  products: MockProduct[];
+  products: Product[];
 }
 
 export function ProductList({ products }: ProductListProps) {

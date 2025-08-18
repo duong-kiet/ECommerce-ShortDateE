@@ -1,6 +1,6 @@
 "use client";
 
-import { MockProduct } from "@/lib/mock-data";
+import { Product } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +8,7 @@ import { useCartStore } from "@/store/cart-store";
 import Image from "next/image";
 
 interface ProductDetailProps {
-  product: MockProduct;
+  product: Product;
 }
 
 export function ProductDetail({ product }: ProductDetailProps) {

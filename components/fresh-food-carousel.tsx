@@ -6,10 +6,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { getAutoPricingProducts, MockProduct } from "@/lib/mock-data";
+import { getAutoPricingProducts, Product } from "@/lib/mock-data";
 
 // Helper function to calculate discount percentage
-function calculateDiscountPercentage(originalPrice: number, currentPrice: number): number {
+function calculateDiscountPercentage(
+  originalPrice: number,
+  currentPrice: number
+): number {
   return Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
 }
 
@@ -17,8 +20,10 @@ function calculateDiscountPercentage(originalPrice: number, currentPrice: number
 function getTimeUntilExpiry(expiryDate: string): string {
   const now = new Date();
   const expiry = new Date(expiryDate);
-  const diffInHours = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60));
-  
+  const diffInHours = Math.ceil(
+    (expiry.getTime() - now.getTime()) / (1000 * 60 * 60)
+  );
+
   if (diffInHours <= 0) return "Hết hạn";
   if (diffInHours <= 24) return `${diffInHours} giờ`;
   const days = Math.ceil(diffInHours / 24);
@@ -29,8 +34,10 @@ function getTimeUntilExpiry(expiryDate: string): string {
 function getUrgencyLevel(expiryDate: string): "high" | "medium" | "low" {
   const now = new Date();
   const expiry = new Date(expiryDate);
-  const diffInHours = Math.ceil((expiry.getTime() - now.getTime()) / (1000 * 60 * 60));
-  
+  const diffInHours = Math.ceil(
+    (expiry.getTime() - now.getTime()) / (1000 * 60 * 60)
+  );
+
   if (diffInHours <= 24) return "high";
   if (diffInHours <= 72) return "medium";
   return "low";
@@ -38,7 +45,7 @@ function getUrgencyLevel(expiryDate: string): "high" | "medium" | "low" {
 
 export function FreshFoodCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [products, setProducts] = useState<MockProduct[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [autoPlay, setAutoPlay] = useState(true);
 
   useEffect(() => {
@@ -80,7 +87,10 @@ export function FreshFoodCarousel() {
   const currentProduct = products[currentIndex];
   const currentPrice = currentProduct.default_price.unit_amount;
   const originalPrice = currentProduct.originalPrice;
-  const discountPercentage = calculateDiscountPercentage(originalPrice, currentPrice);
+  const discountPercentage = calculateDiscountPercentage(
+    originalPrice,
+    currentPrice
+  );
   const timeUntilExpiry = getTimeUntilExpiry(currentProduct.expiryDate);
   const urgencyLevel = getUrgencyLevel(currentProduct.expiryDate);
 
@@ -109,7 +119,8 @@ export function FreshFoodCarousel() {
             </div>
           </div>
           <p className="text-lg text-gray-600">
-            Giá giảm tự động theo thời gian thực - Càng gần hết hạn, giá càng tốt!
+            Giá giảm tự động theo thời gian thực - Càng gần hết hạn, giá càng
+            tốt!
           </p>
         </div>
 
@@ -129,10 +140,10 @@ export function FreshFoodCarousel() {
                   {/* Discount Badge */}
                   {discountPercentage > 0 && (
                     <div className="absolute top-4 left-4">
-                      <div 
+                      <div
                         className={`text-white font-bold text-lg px-3 py-1 rounded-full ${
-                          urgencyLevel === "high" 
-                            ? "bg-red-500 animate-pulse" 
+                          urgencyLevel === "high"
+                            ? "bg-red-500 animate-pulse"
                             : urgencyLevel === "medium"
                             ? "bg-orange-500"
                             : "bg-green-500"
@@ -144,13 +155,15 @@ export function FreshFoodCarousel() {
                   )}
                   {/* Urgency Indicator */}
                   <div className="absolute top-4 right-4">
-                    <div className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                      urgencyLevel === "high"
-                        ? "bg-red-100 text-red-700"
-                        : urgencyLevel === "medium"
-                        ? "bg-orange-100 text-orange-700"
-                        : "bg-green-100 text-green-700"
-                    }`}>
+                    <div
+                      className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                        urgencyLevel === "high"
+                          ? "bg-red-100 text-red-700"
+                          : urgencyLevel === "medium"
+                          ? "bg-orange-100 text-orange-700"
+                          : "bg-green-100 text-green-700"
+                      }`}
+                    >
                       <Clock className="w-3 h-3" />
                       {timeUntilExpiry}
                     </div>
@@ -173,16 +186,20 @@ export function FreshFoodCarousel() {
                     <div className="space-y-2">
                       <div className="flex items-center gap-3">
                         <span className="text-3xl font-bold text-green-600">
-                          {(currentPrice / 100).toLocaleString('vi-VN')}đ
+                          {(currentPrice / 100).toLocaleString("vi-VN")}đ
                         </span>
                         {originalPrice > currentPrice && (
                           <span className="text-lg text-gray-400 line-through">
-                            {(originalPrice / 100).toLocaleString('vi-VN')}đ
+                            {(originalPrice / 100).toLocaleString("vi-VN")}đ
                           </span>
                         )}
                       </div>
                       <div className="text-sm text-gray-500">
-                        💡 Tiết kiệm: {((originalPrice - currentPrice) / 100).toLocaleString('vi-VN')}đ
+                        💡 Tiết kiệm:{" "}
+                        {((originalPrice - currentPrice) / 100).toLocaleString(
+                          "vi-VN"
+                        )}
+                        đ
                       </div>
                     </div>
 
@@ -190,16 +207,20 @@ export function FreshFoodCarousel() {
                     {currentProduct.rating && (
                       <div className="flex items-center gap-1">
                         <span className="text-yellow-400">★</span>
-                        <span className="text-sm font-medium">{currentProduct.rating}</span>
-                        <span className="text-sm text-gray-500">(Đánh giá)</span>
+                        <span className="text-sm font-medium">
+                          {currentProduct.rating}
+                        </span>
+                        <span className="text-sm text-gray-500">
+                          (Đánh giá)
+                        </span>
                       </div>
                     )}
 
                     {/* Action Button */}
                     <div className="pt-4">
-                      <Button 
-                        asChild 
-                        size="lg" 
+                      <Button
+                        asChild
+                        size="lg"
                         className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
                       >
                         <Link href={`/products/${currentProduct.id}`}>
@@ -248,8 +269,8 @@ export function FreshFoodCarousel() {
             <button
               key={index}
               className={`w-3 h-3 rounded-full transition-all duration-200 ${
-                index === currentIndex 
-                  ? "bg-green-600 scale-110" 
+                index === currentIndex
+                  ? "bg-green-600 scale-110"
                   : "bg-gray-300 hover:bg-gray-400"
               }`}
               onClick={() => setCurrentIndex(index)}
@@ -262,7 +283,8 @@ export function FreshFoodCarousel() {
         {/* Footer Info */}
         <div className="text-center mt-6">
           <p className="text-sm text-gray-600">
-            🔥 Đang hiển thị {currentIndex + 1} / {products.length} sản phẩm tươi ngon với giá ưu đãi
+            🔥 Đang hiển thị {currentIndex + 1} / {products.length} sản phẩm
+            tươi ngon với giá ưu đãi
           </p>
         </div>
       </div>

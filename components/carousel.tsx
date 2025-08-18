@@ -1,6 +1,6 @@
 "use client";
 
-import { MockProduct } from "@/lib/mock-data";
+import { Product } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 interface CarouselProps {
-  products: MockProduct[];
+  products: Product[];
 }
 
 export function Carousel({ products }: CarouselProps) {
