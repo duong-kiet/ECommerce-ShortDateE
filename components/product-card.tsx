@@ -1,7 +1,14 @@
 "use client";
 
-import { MockProduct, calculateAutoPrice } from "@/lib/mock-data";
+import {
+  Product,
+  calculateAutoPrice,
+  formatTimeProduct,
+  formatPrice,
+} from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
+import { AddToCartButton } from "@/components/add-to-cart-button";
+import { showToast } from "@/components/ui/simple-toast";
 // import { AddToCartButton } from "@/components/add-to-cart-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Heart, ShoppingCart, Star, Clock, AlertTriangle } from "lucide-react";
@@ -9,7 +16,7 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 
 interface ProductCardProps {
-  product: MockProduct;
+  product: Product;
   label?: "Hot" | "Sale" | "New";
   discount?: number;
   rating?: number;
@@ -30,45 +37,76 @@ export function ProductCard({
   const [currentPrice, setCurrentPrice] = useState(
     product.default_price.unit_amount
   );
-  const [daysLeft, setDaysLeft] = useState(0);
+  // Time constants and initial diffs
+  const ONE_SECOND = 1000;
+  const ONE_MINUTE = 60 * ONE_SECOND;
+  const ONE_HOUR = 60 * ONE_MINUTE;
+  const ONE_DAY = 24 * ONE_HOUR;
+  // Parse expiry once via formatTimeProduct and reuse
+  const parsedExpiry = formatTimeProduct(product.expiryDate);
+  const initialDiff = parsedExpiry
+    ? Math.max(0, parsedExpiry.getTime() - Date.now())
+    : 0;
+  const [timeLeftMs, setTimeLeftMs] = useState<number>(initialDiff);
+  const [daysLeft, setDaysLeft] = useState<number>(
+    parsedExpiry ? Math.ceil(initialDiff / ONE_DAY) : 0
+  );
 
-  const formatPrice = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount / 100);
+  const formatTimeLeft = (ms: number) => {
+    if (ms <= 0) return "Hết hạn";
+    if (ms >= ONE_DAY) {
+      const d = Math.ceil(ms / ONE_DAY);
+      return d === 1 ? "1 ngày" : `${d} ngày`;
+    }
+    if (ms >= ONE_HOUR) {
+      const h = Math.floor(ms / ONE_HOUR);
+      return h === 1 ? "1 giờ" : `${h} giờ`;
+    }
+    if (ms >= ONE_MINUTE) {
+      const m = Math.floor(ms / ONE_MINUTE);
+      return m === 1 ? "1 phút" : `${m} phút`;
+    }
+    const s = Math.floor(ms / ONE_SECOND);
+    return s === 1 ? "1 giây" : `${s} giây`;
   };
 
-  const formatDaysLeft = (days: number) => {
-    if (days <= 0) return "Hết hạn";
-    if (days === 1) return "1 ngày";
-    return `${days} ngày`;
-  };
-
-  // Calculate auto-pricing and days left (chỉ cho sản phẩm không phải deals)
+  // Calculate auto-pricing and time left (chỉ cho sản phẩm không phải deals)
   useEffect(() => {
     const updatePrice = () => {
-      if (!isDeal && product.autoPricingEnabled && product.expiryDate) {
-        const now = new Date();
-        const expiry = new Date(product.expiryDate);
-        const timeLeft = expiry.getTime() - now.getTime();
-        const days = Math.ceil(timeLeft / (1000 * 60 * 60 * 24));
-        setDaysLeft(days);
-
-        const autoPrice = calculateAutoPrice(
-          product.originalPrice,
-          product.expiryDate,
-          product.productType
-        );
-        setCurrentPrice(autoPrice);
+      // Always update time left if có expiryDate (dù là deals hay không)
+      const expiry = formatTimeProduct(product.expiryDate);
+      if (expiry) {
+        const diff = expiry.getTime() - Date.now();
+        const clamped = Math.max(0, diff);
+        setTimeLeftMs(clamped);
+        setDaysLeft(Math.ceil(clamped / ONE_DAY));
       } else {
-        // Cho deals, sử dụng giá cố định
+        setTimeLeftMs(0);
+        setDaysLeft(0);
+      }
+
+      // Update price
+      if (!isDeal && product.autoPricingEnabled) {
+        const expiryForCalc = formatTimeProduct(product.expiryDate);
+        if (expiryForCalc) {
+          const autoPrice = calculateAutoPrice(
+            product.originalPrice,
+            expiryForCalc.toISOString(),
+            product.productType
+          );
+          setCurrentPrice(autoPrice);
+        } else {
+          // cannot parse expiry -> keep default price
+          setCurrentPrice(product.default_price.unit_amount);
+        }
+      } else {
+        // Cho deals hoặc khi auto-pricing tắt, sử dụng giá cố định
         setCurrentPrice(product.default_price.unit_amount);
       }
     };
 
     updatePrice();
-    const interval = setInterval(updatePrice, 60000); // Update every minute
+    const interval = setInterval(updatePrice, 1000); // Cập nhật mỗi giây
 
     return () => clearInterval(interval);
   }, [product, isDeal]);
@@ -77,9 +115,9 @@ export function ProductCard({
     setIsWishlisted(!isWishlisted);
   };
 
-  const handleAddToCartLocal = () => {
-    setIsInCart(!isInCart);
-  };
+  // const handleAddToCartLocal = () => {
+  //   setIsInCart(!isInCart);
+  // };
 
   const getExpiryBadgeColor = () => {
     if (daysLeft <= 0) return "bg-red-500";
@@ -133,6 +171,7 @@ export function ProductCard({
     <Card className="group relative overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <CardContent className="p-0">
         {/* Product Image */}
+        {/* Ảnh sản phẩm */}
         <div className="relative aspect-square overflow-hidden">
           <Image
             src={product.images[0]}
@@ -141,53 +180,54 @@ export function ProductCard({
             className="object-cover group-hover:scale-105 transition-transform duration-300"
           />
 
-          {/* Label Badge */}
-          {label && (
-            <div className="absolute top-2 left-2">
-              <span
-                className={`px-2 py-1 text-xs font-medium text-white rounded ${
-                  label === "Hot"
-                    ? "bg-red-500"
-                    : label === "Sale"
-                    ? "bg-orange-500"
-                    : "bg-blue-500"
-                }`}
-              >
-                {label}
-              </span>
+          {/* Hàng badge góc trái: HSD trước, Label sau (nếu có) */}
+          {(!!label || (!isDeal && product.expiryDate)) && (
+            <div className="absolute top-2 left-2 z-20 flex items-center gap-2">
+              {/* HSD: chỉ hiển thị khi không phải deal và có expiryDate */}
+              {!isDeal && parsedExpiry && (
+                <span
+                  className={`px-2 py-1 text-xs font-medium text-white rounded flex items-center gap-1 ${getExpiryBadgeColor()}`}
+                >
+                  {getExpiryIcon()}
+                  {formatTimeLeft(timeLeftMs)}
+                </span>
+              )}
+
+              {/* Label: nằm bên phải HSD nếu có, còn nếu không có HSD thì đứng một mình */}
+              {label && (
+                <span
+                  className={`px-2 py-1 text-xs font-medium text-white rounded ${
+                    label === "Hot"
+                      ? "bg-red-500"
+                      : label === "Sale"
+                      ? "bg-orange-500"
+                      : "bg-blue-500"
+                  }`}
+                >
+                  {label}
+                </span>
+              )}
             </div>
           )}
 
-          {/* Expiry Badge - chỉ hiển thị cho sản phẩm không phải deals */}
-          {!isDeal && product.expiryDate && (
-            <div className="absolute top-2 left-2">
-              <span
-                className={`px-2 py-1 text-xs font-medium text-white rounded flex items-center gap-1 ${getExpiryBadgeColor()}`}
-              >
-                {getExpiryIcon()}
-                {formatDaysLeft(daysLeft)}
-              </span>
-            </div>
-          )}
-
-          {/* Auto-Pricing Badge - chỉ hiển thị cho sản phẩm không phải deals */}
+          {/* Auto-Pricing badge (giữ nguyên) */}
           {!isDeal &&
             product.autoPricingEnabled &&
             currentPrice < product.originalPrice && (
-              <div className="absolute top-2 right-2">
+              <div className="absolute top-2 right-2 z-20">
                 <span className="px-2 py-1 text-xs font-medium text-white bg-red-500 rounded">
                   Auto-Pricing
                 </span>
               </div>
             )}
 
-          {/* Wishlist Button */}
+          {/* Wishlist button (giữ nguyên, nằm trên cùng để không bị đè) */}
           <button
             onClick={handleWishlist}
-            className="absolute top-2 right-2 p-1 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors"
+            className="absolute bottom-2 right-2 p-1 bg-white rounded-full shadow-md hover:bg-gray-50 transition-colors z-30"
           >
             <Heart
-              className={`w-4 h-4 ${
+              className={`w-5 h-5 ${
                 isWishlisted ? "fill-red-500 text-red-500" : "text-gray-400"
               }`}
             />
@@ -232,40 +272,22 @@ export function ProductCard({
           </div>
 
           {/* Add to Cart Button */}
-          {/* <AddToCartButton
+          <AddToCartButton
             id={product.id}
             name={product.name}
             price={currentPrice}
-            imageUrl={product.images[0] ?? null}
-            onClick={handleAddToCartLocal}
+            imageUrl={product.images?.[0] ?? null}
             className="w-full bg-green-50 hover:bg-green-100 text-green-600 border border-green-200"
             size="sm"
+            onClick={() =>
+              showToast(`Đã thêm "${product.name}" vào giỏ`, {
+                variant: "success",
+              })
+            }
           >
             <ShoppingCart className="w-4 h-4 mr-2" />
             Thêm vào giỏ
-          </AddToCartButton> */}
-          {/* Price Section */}
-          <div className="mb-3">
-            {/* Countdown Timer */}
-            <div className="bg-gradient-to-r from-red-500 to-red-600 text-white p-2 rounded-md text-center text-xs font-semibold shadow-md animate-pulse">
-              <div className="flex items-center justify-center gap-1 mb-1">
-                <span>⏰ Flash Sale kết thúc trong:</span>
-              </div>
-              <div className="flex justify-center gap-2 font-mono text-sm font-bold text-red-500">
-                <span className="bg-white bg-opacity-20 px-1 py-0.5 rounded min-w-[20px]">
-                  {formatTime(timeLeft.hours)}
-                </span>
-                <span>:</span>
-                <span className="bg-white bg-opacity-20 px-1 py-0.5 rounded min-w-[20px]">
-                  {formatTime(timeLeft.minutes)}
-                </span>
-                <span>:</span>
-                <span className="bg-white bg-opacity-20 px-1 py-0.5 rounded min-w-[20px]">
-                  {formatTime(timeLeft.seconds)}
-                </span>
-              </div>
-            </div>
-          </div>
+          </AddToCartButton>
         </div>
       </CardContent>
     </Card>
