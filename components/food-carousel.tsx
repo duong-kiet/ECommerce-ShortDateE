@@ -6,7 +6,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { getAutoPricingProducts, Product } from "@/lib/mock-data";
+import { Product , formatTimeProduct } from "@/lib/data";
+import { getProducts } from "@/lib/firebase/firestore-app-data";
+import {
+  calculateAutoPrice,
+  formatPrice
+} from "@/lib/data";
 
 // Helper function to calculate discount percentage
 function calculateDiscountPercentage(
@@ -19,9 +24,10 @@ function calculateDiscountPercentage(
 // Helper function to get time until expiry
 function getTimeUntilExpiry(expiryDate: string): string {
   const now = new Date();
-  const expiry = new Date(expiryDate);
+  const expiry = formatTimeProduct(expiryDate);
+
   const diffInHours = Math.ceil(
-    (expiry.getTime() - now.getTime()) / (1000 * 60 * 60)
+    (expiry!.getTime() - now.getTime()) / (1000 * 60 * 60)
   );
 
   if (diffInHours <= 0) return "Hết hạn";
@@ -43,17 +49,17 @@ function getUrgencyLevel(expiryDate: string): "high" | "medium" | "low" {
   return "low";
 }
 
-export function FreshFoodCarousel() {
+export function FoodCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [products, setProducts] = useState<Product[]>([]);
   const [autoPlay, setAutoPlay] = useState(true);
 
   useEffect(() => {
-    // Get fresh products with auto-pricing enabled
-    const freshProducts = getAutoPricingProducts().filter(
-      (product) => product.productType === "fresh"
-    );
-    setProducts(freshProducts);
+    async function fetchProducts() {
+      const allProducts = await getProducts();
+      setProducts(allProducts.slice(0, 4));
+    }
+    fetchProducts();
   }, []);
 
   useEffect(() => {
@@ -63,7 +69,7 @@ export function FreshFoodCarousel() {
       setCurrentIndex((prevIndex) =>
         prevIndex === products.length - 1 ? 0 : prevIndex + 1
       );
-    }, 4000); // Auto-advance every 4 seconds
+    }, 4000); // Auto-play every 4 seconds
 
     return () => clearInterval(interval);
   }, [autoPlay, products.length]);
@@ -87,10 +93,6 @@ export function FreshFoodCarousel() {
   const currentProduct = products[currentIndex];
   const currentPrice = currentProduct.default_price.unit_amount;
   const originalPrice = currentProduct.originalPrice;
-  const discountPercentage = calculateDiscountPercentage(
-    originalPrice,
-    currentPrice
-  );
   const timeUntilExpiry = getTimeUntilExpiry(currentProduct.expiryDate);
   const urgencyLevel = getUrgencyLevel(currentProduct.expiryDate);
 
@@ -137,26 +139,11 @@ export function FreshFoodCarousel() {
                     fill
                     className="object-cover"
                   />
-                  {/* Discount Badge */}
-                  {discountPercentage > 0 && (
-                    <div className="absolute top-4 left-4">
-                      <div
-                        className={`text-white font-bold text-lg px-3 py-1 rounded-full ${
-                          urgencyLevel === "high"
-                            ? "bg-red-500 animate-pulse"
-                            : urgencyLevel === "medium"
-                            ? "bg-orange-500"
-                            : "bg-green-500"
-                        }`}
-                      >
-                        -{discountPercentage}%
-                      </div>
-                    </div>
-                  )}
+                  
                   {/* Urgency Indicator */}
-                  <div className="absolute top-4 right-4">
+                  <div className="absolute top-4 left-4">
                     <div
-                      className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                      className={`flex items-center gap-1 px-2 py-1 rounded-full text-lg font-medium ${
                         urgencyLevel === "high"
                           ? "bg-red-100 text-red-700"
                           : urgencyLevel === "medium"
@@ -174,10 +161,11 @@ export function FreshFoodCarousel() {
                 <div className="p-8 bg-white flex flex-col justify-center">
                   <div className="space-y-4">
                     <div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                      <h3 className="text-2xl font-bold text-gray-900 mb-2"
+                      >
                         {currentProduct.name}
                       </h3>
-                      <p className="text-gray-600 leading-relaxed">
+                      <p className="text-gray-600 leading-relaxed truncate">
                         {currentProduct.description}
                       </p>
                     </div>
@@ -186,17 +174,17 @@ export function FreshFoodCarousel() {
                     <div className="space-y-2">
                       <div className="flex items-center gap-3">
                         <span className="text-3xl font-bold text-green-600">
-                          {(currentPrice / 100).toLocaleString("vi-VN")}đ
+                          {(currentPrice).toLocaleString("vi-VN")}đ
                         </span>
                         {originalPrice > currentPrice && (
                           <span className="text-lg text-gray-400 line-through">
-                            {(originalPrice / 100).toLocaleString("vi-VN")}đ
+                            {(originalPrice).toLocaleString("vi-VN")}đ
                           </span>
                         )}
                       </div>
                       <div className="text-sm text-gray-500">
                         💡 Tiết kiệm:{" "}
-                        {((originalPrice - currentPrice) / 100).toLocaleString(
+                        {((originalPrice - currentPrice)).toLocaleString(
                           "vi-VN"
                         )}
                         đ
@@ -223,7 +211,7 @@ export function FreshFoodCarousel() {
                         size="lg"
                         className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
                       >
-                        <Link href={`/products/${currentProduct.id}`}>
+                        <Link href={`/products/detail/${currentProduct.id}`}>
                           Mua ngay - Giá tốt nhất!
                         </Link>
                       </Button>

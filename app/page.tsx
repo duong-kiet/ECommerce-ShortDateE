@@ -1,9 +1,9 @@
 import { Header } from "@/components/header";
-import { Sidebar } from "@/components/sidebar";
+import  Sidebar from "@/components/sidebar";
 import { HeroPricingCarousel } from "@/components/hero-pricing-carousel";
-import { FreshFoodCarousel } from "@/components/fresh-food-carousel";
-import { ProductTypeSection } from "@/components/product-type-section";
-import { CategoryGrid } from "@/components/category-grid";
+import { FoodCarousel } from "@/components/food-carousel";
+import ProductTypeSection from "@/components/product-type-section";
+import CategoryGrid from "@/components/category-grid";
 import PromoCards from "@/components/promo-cards";
 
 export default function Home() {
@@ -23,7 +23,7 @@ export default function Home() {
             <HeroPricingCarousel />
 
             {/* Carousel 2: Fresh Food Daily Deals (Autoplay) */}
-            <FreshFoodCarousel />
+            <FoodCarousel />
 
             {/* Shop by Categories */}
             <CategoryGrid />
@@ -43,7 +43,7 @@ export default function Home() {
               type="fresh"
               title="Đồ ăn tươi - Tiêu dùng trong ngày"
               subtitle="HSD 0-1 ngày: cơm hộp, sandwich, sushi, món nấu sẵn từ bếp trung tâm..."
-              maxProducts={6}
+              maxProducts={8}
             />
           </div>
         </div>

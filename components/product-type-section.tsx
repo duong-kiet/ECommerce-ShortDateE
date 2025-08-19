@@ -1,35 +1,34 @@
-"use client";
-
-import { Product, getProductsByType } from "@/lib/mock-data";
 import { ProductCard } from "./product-card";
+import { getProductsByType } from "@/lib/firebase/firestore-app-data";
+import { Product } from "@/lib/data";
 
 interface ProductTypeSectionProps {
-  type: "dry" | "fresh";
-  title: string;
-  subtitle?: string;
-  maxProducts?: number;
+  type: "dry" | "fresh"
+  title: string
+  subtitle?: string
+  maxProducts?: number
 }
 
-export function ProductTypeSection({
+export default async function ProductTypeSection({
   type,
   title,
   subtitle,
   maxProducts = 4,
 }: ProductTypeSectionProps) {
-  const products = getProductsByType(type).slice(0, maxProducts);
+  const products: Product[] = await getProductsByType(type)
+  const displayedProducts = products.slice(0, maxProducts)
 
   const getTypeDescription = () => {
-    if (subtitle) return subtitle;
+    if (subtitle) return subtitle
     if (type === "dry") {
-      return "Thực phẩm khô - đóng gói (HSD 15-90 ngày): mì gói, đồ hộp, sữa, nước giải khát, bánh kẹo, gia vị, ngũ cốc...";
-    } else {
-      return "Đồ ăn tươi - tiêu dùng trong ngày (HSD 0-1 ngày): cơm hộp, sandwich, sushi, món nấu sẵn...";
+      return "Thực phẩm khô - đóng gói (HSD 15-90 ngày): mì gói, đồ hộp, sữa, nước giải khát, bánh kẹo, gia vị, ngũ cốc..."
     }
-  };
+    return "Đồ ăn tươi - tiêu dùng trong ngày (HSD 0-1 ngày): cơm hộp, sandwich, sushi, món nấu sẵn..."
+  }
 
   const getTypeIcon = () => {
-    return type === "dry" ? "🥫" : "🥗";
-  };
+    return type === "dry" ? "🥫" : "🥗"
+  }
 
   return (
     <section className="py-8 w-full">
@@ -40,9 +39,8 @@ export function ProductTypeSection({
         </div>
         <p className="text-sm text-gray-600">{getTypeDescription()}</p>
       </div>
-
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {products.map((product, index) => (
+        {displayedProducts.map((product, index) => (
           <ProductCard
             key={product.id}
             product={product}
@@ -61,5 +59,5 @@ export function ProductTypeSection({
         ))}
       </div>
     </section>
-  );
+  )
 }

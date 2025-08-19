@@ -1,44 +1,89 @@
-"use client";
-import { use } from "react";
-import { ProductList } from "@/components/product-list";
-import { getCategoryById, getProductsByCategory } from "@/lib/mock-data";
-import { Sidebar } from "@/components/sidebar";
+"use client"
+
+import { useEffect, useState } from "react";
+import { getCategoryById, getProductsByCategory, getProductsByType } from "@/lib/firebase/firestore-app-data";
 import { DealsOfTheDaySection } from "@/components/deals-of-the-day-section";
 import { Header } from "@/components/header";
-import {
-  ChevronDown,
-  Search,
-  ShoppingCart,
-  Grid,
-  List,
-  Filter,
-} from "lucide-react";
+import { ChevronDown, ShoppingCart, Grid, List, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import { showToast } from "@/components/ui/simple-toast";
-import { useCartStore } from "@/store/cart-store";
+import { useParams, useRouter } from "next/navigation";
+import { Category, Product } from "@/lib/data";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Pagination } from "@/components/ui/pagination";
 
-import { notFound } from "next/navigation";
-import { ProductCard } from "@/components/product-card";
+export default function ProductCategoryPage() {
+  const params = useParams<{ category: string }>();
+  const [categoryItem, setCategoryItem] = useState<Category | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const router = useRouter();
+  const [priceRange, setPriceRange] = useState([5000, 1000000]);
+  const [currentPage, setCurrentPage] = useState(1);
 
-interface ProductCategoryPageProps {
-  params: Promise<{
-    category: string;
-  }>;
-}
+  const [selectedExpiryRanges, setSelectedExpiryRanges] = useState<string[]>(
+    []
+  );
 
-export default function ProductCategoryPage({
-  params,
-}: ProductCategoryPageProps) {
-  const { category } = use(params); // unwrap Promise<params>
+  const handleExpiryRangeChange = (range: string) => {
+    setSelectedExpiryRanges((prev) =>
+      prev.includes(range) ? prev.filter((r) => r !== range) : [...prev, range]
+    );
+  };
 
-  const categoryItem = getCategoryById(category);
+  useEffect(() => {
+    async function fetchData() {
+      const cat = await getCategoryById(params.category);
+      if (!cat) {
+        router.replace("/404");
+        return;
+      }
+      setCategoryItem(cat);
+      if(params.category === "dry-foods") {
+        const prods = await getProductsByType("dry");
+        setProducts(prods);
+      } else if(params.category === "fresh-foods") {
+        const prods = await getProductsByType("fresh");
+        setProducts(prods);
+      } else {
+        const prods = await getProductsByCategory(params.category);
+        setProducts(prods);
+      }
+    }
+    fetchData();
+  }, [params.category, router]);
+
   if (!categoryItem) {
-    notFound();
+    return null;
   }
 
-  const products = getProductsByCategory(category);
+  const categoryInfo = {
+    name: categoryItem.name,
+    icon: categoryItem.icon,
+    description:
+      categoryItem.productType === "fresh"
+        ? "Đồ ăn tươi, cần dùng sớm"
+        : "Thực phẩm khô, bảo quản lâu dài",
+  };
+
+  const expiryRanges = [
+    { name: "Hôm nay (0-1 ngày)", count: 6, range: "today" },
+    { name: "3 ngày tới", count: 8, range: "3days" },
+    { name: "1 tuần tới", count: 12, range: "1week" },
+    { name: "1 tháng tới", count: 18, range: "1month" },
+    { name: "Trên 1 tháng", count: 25, range: "over1month" },
+  ];
+
+  const handleFilter = () => {
+  };
+
+  const itemsPerPage = 9;
+  const totalPages = Math.ceil(products.length / itemsPerPage);
+  const paginatedProducts = products.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -56,47 +101,13 @@ export default function ProductCategoryPage({
                   Trang chủ
                 </Link>
                 {" > "}
-                <Link
-                  href="/products"
-                  className="hover:text-green-600 transition-colors"
-                >
-                  Sản phẩm
-                </Link>
-                {" > "}
-                {/* <span className="text-gray-900">{categoryInfo.name}</span> */}
+                <span className="text-gray-900 font-bold">{categoryInfo.name}</span>
               </div>
             </div>
+          </div>
 
-            <div className="flex items-center space-x-4">
-              {/* Search */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Tìm kiếm sản phẩm..."
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                />
-              </div>
-
-              {/* Cart */}
-              {(() => {
-                const items = useCartStore((s) => s.items);
-                const totalItems = items.reduce(
-                  (acc, it) => acc + it.quantity,
-                  0
-                );
-                return (
-                  <Link href="/cart">
-                    <Button variant="ghost" size="sm" className="relative">
-                      <ShoppingCart className="w-4 h-4" />
-                      <span className="absolute -top-2 -right-2 bg-green-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                        {totalItems}
-                      </span>
-                    </Button>
-                  </Link>
-                );
-              })()}
-            </div>
+          <div className="flex items-center gap-2 mt-4">
+            <span>{categoryInfo.icon}</span><p>{categoryInfo.description}</p>
           </div>
         </div>
       </div>
@@ -154,121 +165,100 @@ export default function ProductCategoryPage({
             </div>
 
             {/* Product List - Grid Layout */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.map((product, index) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {paginatedProducts.map((product) => (
                 <div
                   key={product.id}
                   className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
                 >
-                  <div className="flex">
-                    {/* Product Image */}
-                    <div className="relative w-48 h-48 flex-shrink-0">
-                      <Link href={`/products/detail/${product.id}`}>
-                        <img
-                          src={product.images[0]}
-                          alt={product.name}
-                          className="w-full h-full object-cover hover:opacity-80 transition-opacity cursor-pointer"
-                        />
-                      </Link>
-                      {/* Status Label */}
-                      {parseInt(product.id.split("_")[1]) % 4 === 0 && (
-                        <span className="absolute top-2 left-2 bg-pink-500 text-white text-xs px-2 py-1 rounded-full">
-                          Hot
-                        </span>
-                      )}
-                      {parseInt(product.id.split("_")[1]) % 4 === 1 && (
-                        <span className="absolute top-2 left-2 bg-blue-400 text-white text-xs px-2 py-1 rounded-full">
-                          Sale
-                        </span>
-                      )}
-                      {parseInt(product.id.split("_")[1]) % 4 === 2 && (
-                        <span className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                          New
-                        </span>
-                      )}
-                      {parseInt(product.id.split("_")[1]) % 4 === 3 && (
-                        <span className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
-                          Best
-                        </span>
-                      )}
+                  {/* Product Image */}
+                  <div className="relative">
+                    <img
+                      src={product.images[0]}
+                      alt={product.name}
+                      className="w-full h-48 object-cover"
+                    />
+                    {/* Status Label */}
+                    {parseInt(product.id.split("_")[1]) % 4 === 0 && (
+                      <span className="absolute top-2 left-2 bg-pink-500 text-white text-xs px-2 py-1 rounded-full">
+                        Hot
+                      </span>
+                    )}
+                    {parseInt(product.id.split("_")[1]) % 4 === 1 && (
+                      <span className="absolute top-2 left-2 bg-blue-400 text-white text-xs px-2 py-1 rounded-full">
+                        Sale
+                      </span>
+                    )}
+                    {parseInt(product.id.split("_")[1]) % 4 === 2 && (
+                      <span className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                        New
+                      </span>
+                    )}
+                    {parseInt(product.id.split("_")[1]) % 4 === 3 && (
+                      <span className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
+                        Best
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Product Info */}
+                  <div className="p-4">
+                    <div className="text-sm text-gray-500 mb-1">
+                      Hodo Foods
+                    </div>
+                    
+                    <Link href={`/products/detail/${product.id}`}>
+                      <h3 className="font-semibold text-gray-900 mb-2 h-12 overflow-hidden">
+                        {product.name}
+                      </h3>
+                    </Link>
+
+                    {/* Rating */}
+                    <div className="flex items-center space-x-1 mb-2">
+                      <span className="text-yellow-400">★</span>
+                      <span className="text-sm text-gray-600">5.0</span>
+                      <span className="text-sm text-gray-500">100g</span>
                     </div>
 
-                    {/* Product Info */}
-                    <div className="flex-1 p-6">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="text-sm text-gray-500 mb-1">
-                            Hodo Foods
-                          </div>
-                          <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                            <Link
-                              href={`/products/detail/${product.id}`}
-                              className="hover:text-green-600 transition-colors"
-                            >
-                              {product.name}
-                            </Link>
-                          </h3>
+                    {/* Description */}
+                    <p className="text-sm text-gray-600 mb-3 h-10 overflow-hidden">
+                      {product.description}
+                    </p>
 
-                          {/* Rating */}
-                          <div className="flex items-center space-x-1 mb-3">
-                            <span className="text-yellow-400">★</span>
-                            <span className="text-sm text-gray-600">5.0</span>
-                            <span className="text-sm text-gray-500">100g</span>
-                          </div>
+                    {/* Price */}
+                    <div className="flex items-center space-x-2 mb-3">
+                      <span className="text-lg font-bold text-green-600">
+                        {product.default_price.unit_amount.toLocaleString()}đ
+                      </span>
+                      <span className="text-sm text-gray-500 line-through">
+                        {product.originalPrice
+                          ? product.originalPrice.toLocaleString()
+                          : (
+                              product.default_price.unit_amount * 1.1
+                            ).toLocaleString()}
+                        đ
+                      </span>
+                    </div>
 
-                          {/* Description */}
-                          <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                            elit. Sed do eiusmod tempor incididunt ut labore et
-                            dolore magna aliqua. Ut enim ad minim veniam, quis
-                            nostrud exercitation ullamco laboris.
-                          </p>
+                    {/* Action Buttons */}
 
-                          {/* Price */}
-                          <div className="flex items-center space-x-2 mb-4">
-                            <span className="text-2xl font-bold text-green-600">
-                              {product.default_price.unit_amount.toLocaleString()}
-                              đ
-                            </span>
-                            <span className="text-lg text-gray-500 line-through">
-                              {product.old_price
-                                ? product.old_price.toLocaleString()
-                                : (
-                                    product.default_price.unit_amount * 1.1
-                                  ).toLocaleString()}
-                              đ
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="flex flex-col space-y-3 ml-6">
-                          {/* <Button className="w-32 bg-green-600 hover:bg-green-700">
-                          <ShoppingCart className="w-4 h-4 mr-2" />
-                          Thêm vào giỏ
-                        </Button> */}
-                          <AddToCartButton
-                            id={product.id}
-                            name={product.name}
-                            price={product.default_price.unit_amount}
-                            imageUrl={product.images?.[0] ?? null}
-                            className="w-full bg-green-50 hover:bg-green-100 text-green-600 border border-green-200"
-                            size="sm"
-                            onClick={() =>
-                              showToast(`Đã thêm "${product.name}" vào giỏ`, {
-                                variant: "success",
-                              })
-                            }
-                          >
-                            <ShoppingCart className="w-4 h-4 mr-2" />
-                            Thêm vào giỏ
-                          </AddToCartButton>
-
-                          <Button variant="outline" size="sm" className="w-32">
-                            So sánh
-                          </Button>
-                        </div>
-                      </div>
+                    {/* Add to Cart Button */}
+                    <div className="flex items-center space-x-2">
+                      <AddToCartButton
+                        id={product.id}
+                        name={product.name}
+                        price={product.default_price.unit_amount}
+                        imageUrl={product.images[0]}
+                        className="flex-1 bg-green-600 hover:bg-green-700"
+                        onClick={() =>
+                          showToast(`Đã thêm "${product.name}" vào giỏ`, {
+                            variant: "success",
+                          })
+                        }
+                      >
+                        <ShoppingCart className="w-4 h-4 mr-2" />
+                        Thêm vào giỏ
+                      </AddToCartButton>
                     </div>
                   </div>
                 </div>
@@ -277,233 +267,71 @@ export default function ProductCategoryPage({
 
             {/* Pagination */}
             <div className="flex justify-center mt-8">
-              <div className="flex items-center space-x-2">
-                {[1, 2, 3, 4, 5, 6].map((page) => (
-                  <button
-                    key={page}
-                    className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                      page === 1
-                        ? "bg-green-600 text-white"
-                        : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-300"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
-              </div>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
             </div>
           </div>
 
           {/* Right Side - Filters */}
-          <div className="w-80 flex-shrink-0">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              {/* Category Section */}
-              <div className="mb-8">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">
-                  Danh mục
-                </h3>
-                <div className="space-y-3 max-h-48 overflow-y-auto">
-                  <div className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                    <div className="flex items-center space-x-3">
-                      <span className="text-xl">🍜</span>
-                      <span className="text-sm text-gray-700">Mì tôm</span>
-                    </div>
-                    <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
-                      4
-                    </span>
+          <div className="w-80">
+            {/* Price Filter */}
+            <Card className="pt-0 mb-8">
+              <CardHeader className="p-4 bg-[#dbfce7] text-[#00A63E]">
+                <CardTitle className="text-lg font-bold">Khoảng giá (VNĐ)</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <div className="flex justify-between text-sm text-gray-600 mb-2">
+                    <span>{priceRange[0].toLocaleString()}đ</span>
+                    <span>{priceRange[1].toLocaleString()}đ</span>
                   </div>
-                  <div className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                    <div className="flex items-center space-x-3">
-                      <span className="text-xl">🥤</span>
-                      <span className="text-sm text-gray-700">Nước</span>
-                    </div>
-                    <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
-                      4
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                    <div className="flex items-center space-x-3">
-                      <span className="text-xl">🥛</span>
-                      <span className="text-sm text-gray-700">Sữa</span>
-                    </div>
-                    <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
-                      7
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                    <div className="flex items-center space-x-3">
-                      <span className="text-xl">🍪</span>
-                      <span className="text-sm text-gray-700">Bánh kẹo</span>
-                    </div>
-                    <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
-                      11
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
-                    <div className="flex items-center space-x-3">
-                      <span className="text-xl">🌾</span>
-                      <span className="text-sm text-gray-700">Ngũ cốc</span>
-                    </div>
-                    <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded-full">
-                      14
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Price Filter Section */}
-              <div className="mb-8">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">
-                  Lọc theo giá
-                </h3>
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between text-sm text-gray-600 mb-2">
-                      <span>500.000đ</span>
-                      <span>1.000.000đ</span>
-                    </div>
+                  <div className="relative">
                     <input
                       type="range"
-                      min="500000"
+                      min="5000"
                       max="1000000"
-                      defaultValue="750000"
+                      value={priceRange[1]}
+                      onChange={(e) =>
+                        setPriceRange([priceRange[0], parseInt(e.target.value)])
+                      }
                       className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
                     />
                   </div>
+                </div>
+              </CardContent>
+            </Card>
 
-                  {/* Color Filter */}
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-700 mb-3">
-                      Màu sắc
-                    </h4>
-                    <div className="space-y-2">
-                      <label className="flex items-center space-x-2 cursor-pointer">
-                        <input type="checkbox" className="text-green-600" />
-                        <span className="text-sm text-gray-600">Đỏ (56)</span>
-                      </label>
-                      <label className="flex items-center space-x-2 cursor-pointer">
-                        <input type="checkbox" className="text-green-600" />
-                        <span className="text-sm text-gray-600">
-                          Xanh lá (78)
-                        </span>
-                      </label>
-                      <label className="flex items-center space-x-2 cursor-pointer">
-                        <input type="checkbox" className="text-green-600" />
-                        <span className="text-sm text-gray-600">
-                          Xanh dương (34)
-                        </span>
+            {/* Expiry Range Filter */}
+            <Card className="pt-0 mb-8">
+              <CardHeader className="p-4 bg-[#dbfce7] text-[#00A63E]">
+                <CardTitle className="text-lg flex items-center gap-2 font-bold">
+                  <Clock className="w-4 h-4" />
+                  Hạn sử dụng
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {expiryRanges.map((range) => (
+                  <div key={range.name} className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id={range.name}
+                        checked={selectedExpiryRanges.includes(range.range)}
+                        onChange={() => handleExpiryRangeChange(range.range)}
+                        className="text-green-600"
+                      />
+                      <label htmlFor={range.name} className="text-sm">
+                        {range.name}
                       </label>
                     </div>
+                    <span className="text-sm text-gray-500">({range.count})</span>
                   </div>
-
-                  {/* Item Condition Filter */}
-                  <div>
-                    <h4 className="text-sm font-medium text-gray-700 mb-3">
-                      Tình trạng sản phẩm
-                    </h4>
-                    <div className="space-y-2">
-                      <label className="flex items-center space-x-2 cursor-pointer">
-                        <input type="checkbox" className="text-green-600" />
-                        <span className="text-sm text-gray-600">Mới (150)</span>
-                      </label>
-                      <label className="flex items-center space-x-2 cursor-pointer">
-                        <input type="checkbox" className="text-green-600" />
-                        <span className="text-sm text-gray-600">
-                          Đã qua sử dụng (27)
-                        </span>
-                      </label>
-                      <label className="flex items-center space-x-2 cursor-pointer">
-                        <input type="checkbox" className="text-green-600" />
-                        <span className="text-sm text-gray-600">Cũ (45)</span>
-                      </label>
-                    </div>
-                  </div>
-
-                  <Button className="w-full bg-green-600 hover:bg-green-700">
-                    <Filter className="w-4 h-4 mr-2" />
-                    Lọc sản phẩm
-                  </Button>
-                </div>
-              </div>
-
-              {/* New Products Section */}
-              <div>
-                <h3 className="text-lg font-bold text-gray-900 mb-4">
-                  Sản phẩm mới
-                </h3>
-                <div className="space-y-3">
-                  <div className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
-                    <Link
-                      href="/products/detail/prod_1"
-                      className="flex items-center space-x-3 w-full"
-                    >
-                      <img
-                        src="https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=60&h=60&fit=crop"
-                        alt="Orange Juice"
-                        className="w-12 h-12 rounded-lg object-cover"
-                      />
-                      <div className="flex-1">
-                        <h4 className="text-sm font-medium text-gray-900">
-                          Nước cam tươi
-                        </h4>
-                        <div className="flex items-center space-x-1">
-                          <span className="text-yellow-400 text-xs">★</span>
-                          <span className="text-sm text-green-600 font-medium">
-                            99.500đ
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                  </div>
-                  <div className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
-                    <Link
-                      href="/products/detail/prod_2"
-                      className="flex items-center space-x-3 w-full"
-                    >
-                      <img
-                        src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=60&h=60&fit=crop"
-                        alt="Banana"
-                        className="w-12 h-12 rounded-lg object-cover"
-                      />
-                      <div className="flex-1">
-                        <h4 className="text-sm font-medium text-gray-900">
-                          Chuối tươi
-                        </h4>
-                        <div className="flex items-center space-x-1">
-                          <span className="text-yellow-400 text-xs">★</span>
-                          <span className="text-sm text-green-600 font-medium">
-                            69.500đ
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                  </div>
-                  <div className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg">
-                    <Link
-                      href="/products/detail/prod_3"
-                      className="flex items-center space-x-3 w-full"
-                    >
-                      <img
-                        src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=60&h=60&fit=crop"
-                        alt="Red Jacket"
-                        className="w-12 h-12 rounded-lg object-cover"
-                      />
-                      <div className="flex-1">
-                        <h4 className="text-sm font-medium text-gray-900">
-                          Áo khoác đỏ
-                        </h4>
-                        <div className="flex items-center space-x-1">
-                          <span className="text-yellow-400 text-xs">★</span>
-                          <span className="text-sm text-green-600 font-medium">
-                            25.000đ
-                          </span>
-                        </div>
-                      </div>
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
+                ))}
+              </CardContent>
+            </Card>
           </div>
         </div>
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { Product } from "@/lib/mock-data";
+import { Product } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

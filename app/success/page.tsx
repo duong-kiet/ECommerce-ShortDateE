@@ -34,22 +34,21 @@ export default function SuccessPage() {
               />
             </svg>
           </div>
-          <h1 className="text-3xl font-bold mb-4">Order Successful!</h1>
+          <h1 className="text-3xl font-bold mb-4">Đã đặt hàng thành công!</h1>
           <p className="text-gray-600 mb-4">
             {message ||
               "Thank you for your purchase. Your order is being processed."}
           </p>
           <p className="text-sm text-gray-500 mb-6">
-            Note: Stripe payment processing is currently disabled for
-            development purposes.
+            Note: Hãy chú ý điện thoại gọi từ shipper nhé để có thể nhận hàng nhé.
           </p>
         </div>
         <div className="space-y-3">
           <Button asChild className="w-full">
-            <Link href="/products">Continue Shopping</Link>
+            <Link href="/">Tiếp tục mua hàng</Link>
           </Button>
           <Button asChild variant="outline" className="w-full">
-            <Link href="/">Back to Home</Link>
+            <Link href="/">Trở về trang chủ</Link>
           </Button>
         </div>
       </div>

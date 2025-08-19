@@ -132,7 +132,7 @@ export default function AboutPage() {
             </div>
             <div>
               <Button className="bg-green-600 hover:bg-green-700" asChild>
-                <a href="/products">Mua sắm ngay</a>
+                <a href="/">Mua sắm ngay</a>
               </Button>
             </div>
           </section>

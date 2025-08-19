@@ -1,6 +1,5 @@
 "use server";
 
-import { CartItem } from "@/store/cart-store";
 import { redirect } from "next/navigation";
 
 export const checkoutAction = async (formData: FormData): Promise<void> => {

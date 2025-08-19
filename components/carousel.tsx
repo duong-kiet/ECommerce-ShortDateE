@@ -1,6 +1,6 @@
 "use client";
 
-import { Product } from "@/lib/mock-data";
+import { Product } from "@/lib/data";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight } from "lucide-react";

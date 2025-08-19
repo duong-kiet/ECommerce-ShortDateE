@@ -3,7 +3,11 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Filter, Clock, TrendingDown, ShoppingCart, Flame } from "lucide-react";
-import { useState } from "react";
+import { getCategories } from "@/lib/firebase/firestore-app-data";
+import Link from "next/link";
+import { removeParentheses } from "@/lib/utils";
+import { Category } from "@/lib/data";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 
 interface SidebarProps {
@@ -12,7 +16,7 @@ interface SidebarProps {
   onFilterChange?: (filters: any) => void;
 }
 
-export function Sidebar({
+export default function Sidebar({
   selectedCategory,
   onCategoryChange,
   onFilterChange,
@@ -24,94 +28,21 @@ export function Sidebar({
   const [selectedExpiryRanges, setSelectedExpiryRanges] = useState<string[]>(
     []
   );
+  const [categories, setCategories] = useState<Category[]>([]);
 
-  const categories = [
-    {
-      name: "Đồ hộp",
-      icon: "🥫",
-      count: 8,
-      type: "dry",
-      slug: "do-hop",
-    },
-    {
-      name: "Đồ tươi",
-      icon: "🥗",
-      count: 6,
-      type: "fresh",
-      slug: "do-tuoi",
-    },
-    {
-      name: "Mì tôm",
-      icon: "🍜",
-      count: 4,
-      type: "dry",
-      slug: "mi-tom",
-    },
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const fetchedCategories = await getCategories();
+        setCategories(fetchedCategories);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        setCategories([]);
+      }
+    };
 
-    {
-      name: "Nước giải khát",
-      icon: "🥤",
-      count: 6,
-      type: "dry",
-      slug: "nuoc-giai-khat",
-    },
-    {
-      name: "Sữa",
-      icon: "🥛",
-      count: 1,
-      type: "dry",
-      slug: "sua",
-    },
-    {
-      name: "Bánh kẹo",
-      icon: "🍪",
-      count: 4,
-      type: "dry",
-      slug: "banh-keo",
-    },
-    {
-      name: "Gia vị",
-      icon: "🧂",
-      count: 3,
-      type: "dry",
-      slug: "gia-vi",
-    },
-    {
-      name: "Ngũ cốc",
-      icon: "🌾",
-      count: 3,
-      type: "dry",
-      slug: "ngu-coc",
-    },
-    {
-      name: "Cơm hộp",
-      icon: "🍱",
-      count: 4,
-      type: "fresh",
-      slug: "com-hop",
-    },
-    {
-      name: "Bánh mì",
-      icon: "🥪",
-      count: 3,
-      type: "fresh",
-      slug: "banh-mi",
-    },
-    {
-      name: "Sushi",
-      icon: "🍣",
-      count: 3,
-      type: "fresh",
-      slug: "sushi",
-    },
-    {
-      name: "Canh",
-      icon: "🍲",
-      count: 4,
-      type: "fresh",
-      slug: "canh",
-    },
-  ];
+    fetchCategories();
+  }, []);
 
   const productTypes = [
     { name: "Thực phẩm khô", count: 23, type: "dry" },
@@ -194,7 +125,7 @@ export function Sidebar({
             <div className="space-y-2 p-3">
               {categories.map((category) => (
                 <button
-                  key={category.slug}
+                  key={category.id}
                   onClick={() => onCategoryChange?.(category.id)}
                   className={`w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-all duration-200 ${
                     selectedCategory === category.id
@@ -206,22 +137,22 @@ export function Sidebar({
                     <span className="text-xl flex-shrink-0">
                       {category.icon}
                     </span>
-                    <span className="font-medium text-sm text-gray-700 text-left">
-                      {category.name}
+                    <span className="font-medium text-sm text-gray-700 text-left truncate max-w-[90px]">
+                      {removeParentheses(category.name)}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0 ml-3">
                     <span
                       className={`text-xs px-2 py-1 rounded-full font-medium whitespace-nowrap ${
-                        category.type === "fresh"
+                        category.productType === "fresh"
                           ? "bg-green-100 text-green-800"
                           : "bg-blue-100 text-blue-800"
                       }`}
                     >
-                      {category.type === "fresh" ? "Tươi" : "Khô"}
+                      {category.productType === "fresh" ? "Tươi" : "Khô"}
                     </span>
                     <span className="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded-full min-w-[24px] text-center">
-                      {category.count}
+                      {category.productCount}
                     </span>
                   </div>
                 </button>

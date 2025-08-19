@@ -1,12 +1,9 @@
-"use client";
-
-import { getCategories } from "@/lib/mock-data";
+import { getCategories } from "@/lib/firebase/firestore-app-data";
 import Link from "next/link";
+import { Category } from "@/lib/data";
 
-export function CategoryGrid() {
-  const categories = getCategories();
-
-  // Lọc ra 2 phân khúc chính và các danh mục con
+export default async function CategoryGrid() {
+  const categories: Category[] = await getCategories();
   const mainCategories = categories.filter(
     (cat) => cat.id === "dry-foods" || cat.id === "fresh-foods"
   );
@@ -24,11 +21,10 @@ export function CategoryGrid() {
           Chọn phân khúc phù hợp với nhu cầu của bạn
         </p>
       </div>
-
-      {/* 2 phân khúc chính */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {mainCategories.map((category) => (
-          <div
+          <Link
+            href={`/categories/${category.id}`}
             key={category.id}
             className="group relative overflow-hidden bg-[#ecf9f2] rounded-xl p-6 hover:shadow-lg transition-all duration-300 border border-gray-100"
           >
@@ -50,18 +46,17 @@ export function CategoryGrid() {
                 →
               </div>
             </div>
-          </div>
+          </Link>
         ))}
       </div>
-
-      {/* Danh mục con */}
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">
           Danh mục chi tiết
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {subCategories.map((category) => (
-            <div
+            <Link
+              href={`/categories/${category.id}`}
               key={category.id}
               className="group flex flex-col items-center p-4 bg-[#ecf9f2] rounded-lg hover:shadow-md transition-shadow duration-300 border border-gray-100"
             >
@@ -71,7 +66,7 @@ export function CategoryGrid() {
               <h4 className="text-sm font-medium text-gray-900 text-center line-clamp-2">
                 {category.name}
               </h4>
-            </div>
+            </Link>
           ))}
         </div>
       </div>

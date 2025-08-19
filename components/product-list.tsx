@@ -1,6 +1,6 @@
 "use client";
 
-import { Product } from "@/lib/mock-data";
+import { Product } from "@/lib/data";
 import { ProductCard } from "./product-card";
 
 interface ProductListProps {

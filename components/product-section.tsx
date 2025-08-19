@@ -1,6 +1,7 @@
 "use client";
 
-import { Product, getProductsByCategory } from "@/lib/mock-data";
+import { Product } from "@/lib/data";
+import { getProductsByCategory } from "@/lib/firebase/firestore-app-data";
 import { useState } from "react";
 import { ProductCard } from "./product-card";
 
