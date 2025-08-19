@@ -3,15 +3,17 @@
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import {
+  Clock,
   Heart,
   ShoppingCart,
   Star
 } from "lucide-react";
 import { Header } from "@/components/header";
-import { Product } from "@/lib/data";
+import { Product, formatTimeProduct, calculateExpiryNowLeft, ONE_DAY, ONE_MINUTE, calculateAutoPrice, formatCountdownTime, formatPrice  } from "@/lib/data";
 import Image from "next/image";
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import { showToast } from "@/components/ui/simple-toast";
+import { useState, useEffect } from "react";
 
 interface ProductDetailClientProps {
   product: Product;
@@ -19,6 +21,74 @@ interface ProductDetailClientProps {
 }
 
 export default function ProductDetailClient({ product, relatedProducts }: ProductDetailClientProps) {
+  const [currentPrice, setCurrentPrice] = useState(
+    product.originalPrice
+  );
+
+  const parsedExpiry = formatTimeProduct(product.expiryDate);
+  const initialDiff = calculateExpiryNowLeft(parsedExpiry!, new Date());
+
+  const [secondsLeft, setSecondsLeft] = useState<number>(initialDiff);
+
+  const calculateDynamicPrice = () => {
+    return calculateAutoPrice(
+      product.originalPrice,
+      product.expiryDate,
+      product.factoryDate,
+      product.default_price.unit_amount
+    );
+  };
+
+  useEffect(() => {
+    const updateTimeLeft = () => {
+      const expiry = formatTimeProduct(product.expiryDate);
+      if (expiry) {
+        const diff = calculateExpiryNowLeft(expiry, new Date());
+        const clamped = Math.max(0, diff);
+        setSecondsLeft(clamped);
+      } else {
+        setSecondsLeft(0);
+      }
+    };
+  
+    const updatePrice = () => {
+      const newPrice = calculateDynamicPrice();
+      setCurrentPrice(newPrice);
+    };
+
+    // Initial updates
+    updateTimeLeft();
+    updatePrice();
+    
+    // Set up intervals
+    const timeInterval = setInterval(updateTimeLeft, 1000);
+      
+    // Price update interval dựa trên thời gian còn lại
+    let priceInterval: NodeJS.Timeout | null = null;
+
+    if (parsedExpiry) {
+      const updatePriceAndInterval = () => {
+        updatePrice();
+        
+        // Clear interval cũ và tạo interval mới với thời gian phù hợp
+        if (priceInterval) clearInterval(priceInterval);
+        
+        const timeLeft = calculateExpiryNowLeft(parsedExpiry, new Date());
+        if (timeLeft > 0) {
+          const updateInterval = timeLeft > ONE_DAY ? ONE_DAY : ONE_MINUTE;
+          priceInterval = setInterval(updatePriceAndInterval, updateInterval * 1000);
+        }
+      };
+      
+      updatePriceAndInterval();
+    }
+
+    return () => {
+      clearInterval(timeInterval);
+      if (priceInterval) clearInterval(priceInterval);
+    };
+  }, []);
+
   return (
     <div>
       <Header />
@@ -107,16 +177,14 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
               {/* Price */}
               <div className="flex items-center space-x-4 mb-6">
                 <span className="text-3xl font-bold text-green-600">
-                  {product.default_price.unit_amount.toLocaleString()}đ
+                  {formatPrice(currentPrice)}
                 </span>
-                <span className="text-xl text-gray-500 line-through">
-                  {product.old_price
-                    ? product.old_price.toLocaleString()
-                    : (
-                        product.default_price.unit_amount * 1.37
-                      ).toLocaleString()}
-                  đ
-                </span>
+                  {product.originalPrice &&
+                    currentPrice < product.originalPrice && (
+                      <span className="text-lg text-gray-500 line-through">
+                        {formatPrice(product.originalPrice)}
+                      </span>
+                  )}
               </div>
 
               {/* Description */}
@@ -154,7 +222,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                 <AddToCartButton
                   id={product.id}
                   name={product.name}
-                  price={product.default_price.unit_amount}
+                  price={currentPrice}
                   imageUrl={product.images[0]}
                   className="flex-1 bg-green-600 hover:bg-green-700"
                   onClick={() =>
@@ -166,6 +234,16 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                   <ShoppingCart className="w-4 h-4 mr-2" />
                   Thêm vào giỏ
                 </AddToCartButton>
+
+                {/* Real-time Countdown Timer */}
+                <div className="w-full">
+                  <div className="flex items-center justify-center gap-2 w-full px-3 py-2 bg-red-50 border border-red-200 rounded">
+                    <Clock className="w-4 h-4 text-red-500" />
+                    <span className="text-sm font-medium text-red-600">
+                      {secondsLeft > 0 ? formatCountdownTime(secondsLeft) : "Đã hết hạn"}
+                    </span>
+                  </div>
+                </div>
                 
                 {/* Wishlist */}
                 <Button variant="outline" size="icon" className="w-12 h-12">

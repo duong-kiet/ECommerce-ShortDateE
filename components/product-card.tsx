@@ -4,12 +4,17 @@ import {
   Product,
   calculateAutoPrice,
   formatTimeProduct,
-  formatPrice
+  formatPrice,
+  ONE_DAY,
+  ONE_MINUTE,
+  calculateExpiryNowLeft,
+  formatTimeLeft,
+  formatCountdownTime,
 } from "@/lib/data";
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import { showToast } from "@/components/ui/simple-toast";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, ShoppingCart, Star, Clock, AlertTriangle } from "lucide-react";
+import { Heart, ShoppingCart, Star, Clock, AlertTriangle, RefreshCw } from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 
@@ -19,7 +24,7 @@ interface ProductCardProps {
   discount?: number;
   rating?: number;
   brand?: string;
-  isDeal?: boolean; // Thêm prop để phân biệt deals
+  isDeal?: boolean;
 }
 
 export function ProductCard({
@@ -31,93 +36,48 @@ export function ProductCard({
 }: ProductCardProps) {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [currentPrice, setCurrentPrice] = useState(
-    product.default_price.unit_amount
+    product.originalPrice
   );
-
-  // Time constants and initial diffs
-  const ONE_SECOND = 1000;
-  const ONE_MINUTE = 60 * ONE_SECOND;
-  const ONE_HOUR = 60 * ONE_MINUTE;
-  const ONE_DAY = 24 * ONE_HOUR;
 
   // Parse expiry once via formatTimeProduct and reuse
   const parsedExpiry = formatTimeProduct(product.expiryDate);
-  const initialDiff = parsedExpiry
-    ? Math.max(0, parsedExpiry.getTime() - Date.now())
-    : 0;
-  const [timeLeftMs, setTimeLeftMs] = useState<number>(initialDiff);
+  const initialDiff = calculateExpiryNowLeft(parsedExpiry!, new Date());
+
+  const [secondsLeft, setSecondsLeft] = useState<number>(initialDiff);
   const [daysLeft, setDaysLeft] = useState<number>(
     parsedExpiry ? Math.ceil(initialDiff / ONE_DAY) : 0
   );
-  // const [nextPriceUpdate, setNextPriceUpdate] = useState<Date>(new Date());
-  
-  const formatCountdownTime = (ms: number) => {
-    if (ms <= 0) return "Đã hết hạn";
-    
-    if (ms >= ONE_DAY) {
-      // Hiển thị theo ngày:giờ:phút
-      const days = Math.floor(ms / ONE_DAY);
-      const hours = Math.floor((ms % ONE_DAY) / ONE_HOUR);
-      const minutes = Math.floor((ms % ONE_HOUR) / ONE_MINUTE);
-      return `${days}d:${hours.toString().padStart(2, "0")}h:${minutes.toString().padStart(2, "0")}m`;
-    } else {
-      // Hiển thị theo giờ:phút:giây
-      const hours = Math.floor(ms / ONE_HOUR);
-      const minutes = Math.floor((ms % ONE_HOUR) / ONE_MINUTE);
-      const seconds = Math.floor((ms % ONE_MINUTE) / ONE_SECOND);
-      return `${hours.toString().padStart(2, "0")}h:${minutes.toString().padStart(2, "0")}m:${seconds.toString().padStart(2, "0")}s`;
-    }
+
+  const [priceCountdown, setPriceCountdown] = useState<number>(0);
+
+  const calculateDynamicPrice = () => {
+    return calculateAutoPrice(
+      product.originalPrice,
+      product.expiryDate,
+      product.factoryDate,
+      product.default_price.unit_amount
+    );
   };
 
-  const formatTimeLeft = (ms: number) => {
-    if (ms <= 0) return "Hết hạn";
-    if (ms >= ONE_DAY) {
-      const d = Math.ceil(ms / ONE_DAY);
-      return d === 1 ? "1 ngày" : `${d} ngày`;
-    }
-    if (ms >= ONE_HOUR) {
-      const h = Math.floor(ms / ONE_HOUR);
-      return h === 1 ? "1 giờ" : `${h} giờ`;
-    }
-    if (ms >= ONE_MINUTE) {
-      const m = Math.floor(ms / ONE_MINUTE);
-      return m === 1 ? "1 phút" : `${m} phút`;
-    }
-    const s = Math.floor(ms / ONE_SECOND);
-    return s === 1 ? "1 giây" : `${s} giây`;
-  };
-
-  // Calculate auto-pricing and time left (chỉ cho sản phẩm không phải deals)
+  // Calculate auto-pricing and time left
   useEffect(() => {
     const updateTimeLeft = () => {
-      // Always update time left if có expiryDate (dù là deals hay không)
       const expiry = formatTimeProduct(product.expiryDate);
       if (expiry) {
-        const diff = expiry.getTime() - Date.now();
+        const diff = calculateExpiryNowLeft(expiry, new Date());
         const clamped = Math.max(0, diff);
-        setTimeLeftMs(clamped);
+        setSecondsLeft(clamped);
         setDaysLeft(Math.ceil(clamped / ONE_DAY));
       } else {
-        setTimeLeftMs(0);
+        setSecondsLeft(0);
         setDaysLeft(0);
       }
-    };
-
-    const calculateDynamicPrice = () => {
-      return calculateAutoPrice(
-        product.originalPrice,
-        product.expiryDate,
-        product.factoryDate,
-        product.default_price.unit_amount
-      );
     };
 
     const updatePrice = () => {
       const newPrice = calculateDynamicPrice();
       setCurrentPrice(newPrice);
     };
-
-    
 
     // Initial updates
     updateTimeLeft();
@@ -128,6 +88,7 @@ export function ProductCard({
     
     // Price update interval dựa trên thời gian còn lại
     let priceInterval: NodeJS.Timeout | null = null;
+
     if (parsedExpiry) {
       const updatePriceAndInterval = () => {
         updatePrice();
@@ -135,26 +96,24 @@ export function ProductCard({
         // Clear interval cũ và tạo interval mới với thời gian phù hợp
         if (priceInterval) clearInterval(priceInterval);
         
-        const now = Date.now();
-        const expiryTime = parsedExpiry.getTime();
-        const timeLeft = Math.max(0, expiryTime - now);
+        const timeLeft = calculateExpiryNowLeft(parsedExpiry, new Date());
         
         if (timeLeft > 0) {
           const updateInterval = timeLeft > ONE_DAY ? ONE_DAY : ONE_MINUTE;
-          priceInterval = setInterval(updatePriceAndInterval, updateInterval);
+          priceInterval = setInterval(updatePriceAndInterval, updateInterval * 1000);
+
+          setPriceCountdown(updateInterval);
         }
       };
       
       updatePriceAndInterval();
     }
-    
-    // Countdown timer for next price update
-    const countdownInterval = setInterval(() => {
-      if (parsedExpiry) {
-        
-      }
-    }, 1000);
 
+    // Countdown interval cho price update
+    const countdownInterval = setInterval(() => {
+      setPriceCountdown(prev => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    
     return () => {
       clearInterval(timeInterval);
       if (priceInterval) clearInterval(priceInterval);
@@ -182,7 +141,6 @@ export function ProductCard({
   return (
     <Card className="group relative overflow-hidden hover:shadow-lg transition-shadow duration-300">
       <CardContent className="p-0">
-        {/* Product Image */}
         {/* Ảnh sản phẩm */}
         <div className="relative aspect-square overflow-hidden">
           <Image
@@ -201,7 +159,7 @@ export function ProductCard({
                   className={`px-2 py-1 text-xs font-medium text-white rounded flex items-center gap-1 ${getExpiryBadgeColor()}`}
                 >
                   {getExpiryIcon()}
-                  {formatTimeLeft(timeLeftMs)}
+                  {formatTimeLeft(secondsLeft)}
                 </span>
               )}
 
@@ -293,7 +251,17 @@ export function ProductCard({
             <div className="flex items-center justify-center gap-2 w-full px-3 py-2 bg-red-50 border border-red-200 rounded">
               <Clock className="w-4 h-4 text-red-500" />
               <span className="text-sm font-medium text-red-600">
-                {timeLeftMs > 0 ? formatCountdownTime(timeLeftMs) : "Đã hết hạn"}
+                {secondsLeft > 0 ? formatCountdownTime(secondsLeft) : "Đã hết hạn"}
+              </span>
+            </div>
+          </div>
+
+          {/* Price update countdown */}
+          <div className="mt-2 w-full">
+            <div className="flex items-center justify-center gap-2 w-full px-3 py-2 bg-blue-50 border border-blue-200 rounded">
+              <RefreshCw className="w-4 h-4 text-blue-500" />
+              <span className="text-sm font-medium text-blue-600">
+                {formatCountdownTime(priceCountdown)}
               </span>
             </div>
           </div>
