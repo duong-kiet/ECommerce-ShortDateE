@@ -4,12 +4,9 @@ import { useCartStore } from "@/store/cart-store";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 
 export default function SuccessPage() {
   const { clearCart } = useCartStore();
-  const searchParams = useSearchParams();
-  const message = searchParams.get("message");
 
   useEffect(() => {
     clearCart();
@@ -36,8 +33,7 @@ export default function SuccessPage() {
           </div>
           <h1 className="text-3xl font-bold mb-4">Đã đặt hàng thành công!</h1>
           <p className="text-gray-600 mb-4">
-            {message ||
-              "Thank you for your purchase. Your order is being processed."}
+            Cảm ơn bạn đã mua hàng. Đơn hàng của bạn đang được xử lý.
           </p>
           <p className="text-sm text-gray-500 mb-6">
             Note: Hãy chú ý điện thoại gọi từ shipper nhé để có thể nhận hàng nhé.

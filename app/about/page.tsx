@@ -1,6 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import type { Metadata } from "next";
 import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import Image from "next/image";
 
 export const metadata: Metadata = {
   title: "Về chúng tôi | Shoda",
@@ -26,11 +30,15 @@ export default function AboutPage() {
                 với giá tốt nhất nhờ công nghệ Auto-Pricing.
               </p>
               <div className="mt-6">
-                <img
+              <div className="relative w-full h-56 md:h-72 lg:h-80">
+                <Image
                   src="https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?w=1200&h=450&fit=crop"
                   alt="Thực phẩm tươi ngon được đóng gói và trưng bày"
-                  className="w-full rounded-xl object-cover h-56 md:h-72 lg:h-80"
+                  fill
+                  className="rounded-xl object-cover"
                 />
+              </div>
+
               </div>
             </div>
           </section>
@@ -132,7 +140,7 @@ export default function AboutPage() {
             </div>
             <div>
               <Button className="bg-green-600 hover:bg-green-700" asChild>
-                <a href="/">Mua sắm ngay</a>
+                <Link href="/">Mua sắm ngay</Link>
               </Button>
             </div>
           </section>

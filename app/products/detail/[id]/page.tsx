@@ -4,9 +4,7 @@ import { Product } from "@/lib/data";
 import ProductDetailClient from "@/components/product-detail-client";
 
 interface ProductDetailPageProps {
-  params: {
-    id: string;
-  };
+  params: Promise<{ id: string }>;
 }
 
 export default async function ProductDetailPage({

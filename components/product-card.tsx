@@ -49,7 +49,7 @@ export function ProductCard({
   const [daysLeft, setDaysLeft] = useState<number>(
     parsedExpiry ? Math.ceil(initialDiff / ONE_DAY) : 0
   );
-  const [nextPriceUpdate, setNextPriceUpdate] = useState<Date>(new Date());
+  // const [nextPriceUpdate, setNextPriceUpdate] = useState<Date>(new Date());
   
   const formatCountdownTime = (ms: number) => {
     if (ms <= 0) return "Đã hết hạn";
@@ -117,23 +117,11 @@ export function ProductCard({
       setCurrentPrice(newPrice);
     };
 
-    const updateNextPriceUpdateTime = () => {
-      if (parsedExpiry) {
-        const now = Date.now();
-        const expiryTime = parsedExpiry.getTime();
-        const timeLeft = Math.max(0, expiryTime - now);
-        
-        // Nếu còn hơn 24 giờ thì update 24 giờ một lần, ngược lại 1 phút một lần
-        const updateInterval = timeLeft > ONE_DAY ? ONE_DAY : ONE_MINUTE;
-        const nextUpdate = new Date(now + updateInterval);
-        setNextPriceUpdate(nextUpdate);
-      }
-    };
+    
 
     // Initial updates
     updateTimeLeft();
     updatePrice();
-    updateNextPriceUpdateTime();
     
     // Set up intervals
     const timeInterval = setInterval(updateTimeLeft, 1000);
@@ -143,7 +131,6 @@ export function ProductCard({
     if (parsedExpiry) {
       const updatePriceAndInterval = () => {
         updatePrice();
-        updateNextPriceUpdateTime();
         
         // Clear interval cũ và tạo interval mới với thời gian phù hợp
         if (priceInterval) clearInterval(priceInterval);
@@ -164,9 +151,7 @@ export function ProductCard({
     // Countdown timer for next price update
     const countdownInterval = setInterval(() => {
       if (parsedExpiry) {
-        const now = Date.now();
-        const timeToNextUpdate = Math.max(0, nextPriceUpdate.getTime() - now);
-        // setPriceUpdateCountdown(Math.floor(timeToNextUpdate / 1000));
+        
       }
     }, 1000);
 

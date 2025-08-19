@@ -8,18 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Product , formatTimeProduct } from "@/lib/data";
 import { getProducts } from "@/lib/firebase/firestore-app-data";
-import {
-  calculateAutoPrice,
-  formatPrice
-} from "@/lib/data";
-
-// Helper function to calculate discount percentage
-function calculateDiscountPercentage(
-  originalPrice: number,
-  currentPrice: number
-): number {
-  return Math.round(((originalPrice - currentPrice) / originalPrice) * 100);
-}
 
 // Helper function to get time until expiry
 function getTimeUntilExpiry(expiryDate: string): string {

@@ -2,9 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Filter, Clock, TrendingDown, ShoppingCart, Flame } from "lucide-react";
+import { Filter, Clock, TrendingDown, Flame } from "lucide-react";
 import { getCategories } from "@/lib/firebase/firestore-app-data";
-import Link from "next/link";
 import { removeParentheses } from "@/lib/utils";
 import { Category } from "@/lib/data";
 import { useState, useEffect } from "react";
@@ -13,13 +12,11 @@ import Image from "next/image";
 interface SidebarProps {
   selectedCategory?: string;
   onCategoryChange?: (categoryId: string) => void;
-  onFilterChange?: (filters: any) => void;
 }
 
 export default function Sidebar({
   selectedCategory,
   onCategoryChange,
-  onFilterChange,
 }: SidebarProps) {
   const [priceRange, setPriceRange] = useState([5000, 1000000]);
   const [selectedProductTypes, setSelectedProductTypes] = useState<string[]>(
@@ -88,14 +85,6 @@ export default function Sidebar({
     setSelectedExpiryRanges((prev) =>
       prev.includes(range) ? prev.filter((r) => r !== range) : [...prev, range]
     );
-  };
-
-  const handleFilter = () => {
-    onFilterChange?.({
-      priceRange,
-      selectedProductTypes,
-      selectedExpiryRanges,
-    });
   };
 
   return (
@@ -246,7 +235,6 @@ export default function Sidebar({
 
       {/* Filter Button */}
       <Button
-        onClick={handleFilter}
         className="w-full bg-green-600 hover:bg-green-700"
       >
         <Filter className="w-4 h-4 mr-2" />

@@ -75,9 +75,6 @@ export default function ProductCategoryPage() {
     { name: "Trên 1 tháng", count: 25, range: "over1month" },
   ];
 
-  const handleFilter = () => {
-  };
-
   const itemsPerPage = 9;
   const totalPages = Math.ceil(products.length / itemsPerPage);
   const paginatedProducts = products.slice(

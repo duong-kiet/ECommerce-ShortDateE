@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
+import Image from "next/image";
 
 export function HeroBanner() {
   const [email, setEmail] = useState("");
@@ -50,11 +51,15 @@ export function HeroBanner() {
         </div>
 
         <div className="relative">
-          <img
-            src="https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?w=1200&h=450&fit=crop"
-            alt="Thực phẩm tươi ngon được đóng gói và trưng bày"
-            className="w-full rounded-xl object-cover h-56 md:h-72 lg:h-80"
-          />
+          <div className="relative w-full h-56 md:h-72 lg:h-80">
+            <Image
+              src="https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?w=1200&h=450&fit=crop"
+              alt="Thực phẩm tươi ngon được đóng gói và trưng bày"
+              fill
+              className="rounded-xl object-cover"
+              priority
+            />
+          </div>
         </div>
       </div>
     </div>

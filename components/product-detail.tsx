@@ -1,10 +1,7 @@
 "use client";
 
 import { Product } from "@/lib/data";
-import { Button } from "@/components/ui/button";
 import { AddToCartButton } from "@/components/add-to-cart-button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useCartStore } from "@/store/cart-store";
 import Image from "next/image";
 
 interface ProductDetailProps {
@@ -12,7 +9,6 @@ interface ProductDetailProps {
 }
 
 export function ProductDetail({ product }: ProductDetailProps) {
-  const { addItem } = useCartStore();
   const price = product.default_price;
 
   return (
