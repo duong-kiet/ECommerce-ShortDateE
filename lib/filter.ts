@@ -1,5 +1,10 @@
 import { Product } from "./data";
 
+export interface EnrichedProduct extends Product {
+  priceNow?: number;
+  timeLeft?: number;
+}
+
 export interface FilterState {
   priceRange: [number, number];
   selectedProductTypes: string[];
@@ -44,9 +49,9 @@ function isInExpiryRange(timeLeft: number, range: number): boolean {
 
 // Hàm lọc sản phẩm chính
 export function filterProducts(
-  products: Product[],
+  products: EnrichedProduct[],
   filters: FilterState
-): Product[] {
+): EnrichedProduct[] {
   return products.filter((product) => {
     // Lọc theo khoảng giá
     const currentPrice = product.default_price.unit_amount;
@@ -68,8 +73,8 @@ export function filterProducts(
     if (filters.selectedExpiryRanges.length > 0) {
       // Sử dụng timeLeft từ sản phẩm (nếu có) hoặc tính toán từ expiryDate
       const timeLeft =
-        (product as any).timeLeft !== undefined
-          ? (product as any).timeLeft
+        product.timeLeft !== undefined
+          ? product.timeLeft
           : getDaysUntilExpiry(product.expiryDate);
 
       const matchesExpiryRange = filters.selectedExpiryRanges.some((range) =>
@@ -91,7 +96,7 @@ export function filterProducts(
 }
 
 // Hàm đếm số sản phẩm theo từng tiêu chí filter
-export function getFilterCounts(products: Product[]): {
+export function getFilterCounts(products: EnrichedProduct[]): {
   productTypes: { dry: number; fresh: number };
   expiryRanges: {
     today: number;
@@ -126,8 +131,8 @@ export function getFilterCounts(products: Product[]): {
 
     // Đếm theo hạn sử dụng - sử dụng timeLeft nếu có
     const timeLeft =
-      (product as any).timeLeft !== undefined
-        ? (product as any).timeLeft
+      product.timeLeft !== undefined
+        ? product.timeLeft
         : getDaysUntilExpiry(product.expiryDate);
 
     if (timeLeft >= 0 && timeLeft < 1) {

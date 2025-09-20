@@ -76,7 +76,15 @@ export default function FilterResultContent() {
       });
       setFilteredProducts(filtered);
     }
-  }, [allProducts, searchParams]);
+  }, [
+    allProducts,
+    searchParams,
+    resetFilters,
+    updateCategory,
+    updateExpiryRanges,
+    updatePriceRange,
+    updateProductTypes,
+  ]);
 
   if (loading) {
     return (

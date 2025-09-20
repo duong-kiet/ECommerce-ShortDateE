@@ -2,42 +2,52 @@
 
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import {
-  Clock,
-  Heart,
-  ShoppingCart,
-  Star
-} from "lucide-react";
+import { Clock, Heart, ShoppingCart, Star } from "lucide-react";
 import { Header } from "@/components/header";
-import { Product, formatTimeProduct, calculateExpiryNowLeft, ONE_DAY, ONE_MINUTE, calculateAutoPrice, formatCountdownTime, formatPrice  } from "@/lib/data";
+import {
+  Product,
+  formatTimeProduct,
+  calculateExpiryNowLeft,
+  ONE_DAY,
+  ONE_MINUTE,
+  calculateAutoPrice,
+  formatCountdownTime,
+  formatPrice,
+} from "@/lib/data";
 import Image from "next/image";
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import { showToast } from "@/components/ui/simple-toast";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface ProductDetailClientProps {
   product: Product;
   relatedProducts: Product[];
 }
 
-export default function ProductDetailClient({ product, relatedProducts }: ProductDetailClientProps) {
-  const [currentPrice, setCurrentPrice] = useState(
-    product.originalPrice
-  );
+export default function ProductDetailClient({
+  product,
+  relatedProducts,
+}: ProductDetailClientProps) {
+  const [currentPrice, setCurrentPrice] = useState(product.originalPrice);
 
   const parsedExpiry = formatTimeProduct(product.expiryDate);
   const initialDiff = calculateExpiryNowLeft(parsedExpiry!, new Date());
 
   const [secondsLeft, setSecondsLeft] = useState<number>(initialDiff);
 
-  const calculateDynamicPrice = () => {
+  const calculateDynamicPrice = useCallback(() => {
     return calculateAutoPrice(
       product.originalPrice,
       product.expiryDate,
       product.factoryDate,
       product.default_price.unit_amount
     );
-  };
+  }, [
+    product.originalPrice,
+    product.expiryDate,
+    product.factoryDate,
+    product.default_price.unit_amount,
+  ]);
 
   useEffect(() => {
     const updateTimeLeft = () => {
@@ -50,7 +60,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
         setSecondsLeft(0);
       }
     };
-  
+
     const updatePrice = () => {
       const newPrice = calculateDynamicPrice();
       setCurrentPrice(newPrice);
@@ -59,27 +69,30 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
     // Initial updates
     updateTimeLeft();
     updatePrice();
-    
+
     // Set up intervals
     const timeInterval = setInterval(updateTimeLeft, 1000);
-      
+
     // Price update interval dựa trên thời gian còn lại
     let priceInterval: NodeJS.Timeout | null = null;
 
     if (parsedExpiry) {
       const updatePriceAndInterval = () => {
         updatePrice();
-        
+
         // Clear interval cũ và tạo interval mới với thời gian phù hợp
         if (priceInterval) clearInterval(priceInterval);
-        
+
         const timeLeft = calculateExpiryNowLeft(parsedExpiry, new Date());
         if (timeLeft > 0) {
           const updateInterval = timeLeft > ONE_DAY ? ONE_DAY : ONE_MINUTE;
-          priceInterval = setInterval(updatePriceAndInterval, updateInterval * 1000);
+          priceInterval = setInterval(
+            updatePriceAndInterval,
+            updateInterval * 1000
+          );
         }
       };
-      
+
       updatePriceAndInterval();
     }
 
@@ -87,7 +100,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
       clearInterval(timeInterval);
       if (priceInterval) clearInterval(priceInterval);
     };
-  }, []);
+  }, [calculateDynamicPrice, parsedExpiry, product.expiryDate]);
 
   return (
     <div>
@@ -102,10 +115,16 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
               </Link>
               <span>&gt;</span>
               <Link
-                href={product.productType === "dry" ? "/categories/dry-foods" : "/categories/fresh-foods"}
+                href={
+                  product.productType === "dry"
+                    ? "/categories/dry-foods"
+                    : "/categories/fresh-foods"
+                }
                 className="hover:text-green-600 transition-colors"
               >
-                {product.productType == "dry" ? "Thực phẩm khô" : "Thực phẩm tươi"}
+                {product.productType == "dry"
+                  ? "Thực phẩm khô"
+                  : "Thực phẩm tươi"}
               </Link>
               <span>&gt;</span>
               <Link
@@ -179,11 +198,11 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                 <span className="text-3xl font-bold text-green-600">
                   {formatPrice(currentPrice)}
                 </span>
-                  {product.originalPrice &&
-                    currentPrice < product.originalPrice && (
-                      <span className="text-lg text-gray-500 line-through">
-                        {formatPrice(product.originalPrice)}
-                      </span>
+                {product.originalPrice &&
+                  currentPrice < product.originalPrice && (
+                    <span className="text-lg text-gray-500 line-through">
+                      {formatPrice(product.originalPrice)}
+                    </span>
                   )}
               </div>
 
@@ -240,11 +259,13 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                   <div className="flex items-center justify-center gap-2 w-full px-3 py-2 bg-red-50 border border-red-200 rounded">
                     <Clock className="w-4 h-4 text-red-500" />
                     <span className="text-sm font-medium text-red-600">
-                      {secondsLeft > 0 ? formatCountdownTime(secondsLeft) : "Đã hết hạn"}
+                      {secondsLeft > 0
+                        ? formatCountdownTime(secondsLeft)
+                        : "Đã hết hạn"}
                     </span>
                   </div>
                 </div>
-                
+
                 {/* Wishlist */}
                 <Button variant="outline" size="icon" className="w-12 h-12">
                   <Heart className="w-5 h-5" />
@@ -431,9 +452,11 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                         href="/products/prod_1"
                         className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                       >
-                        <img
+                        <Image
                           src="https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=60&h=60&fit=crop"
                           alt="Orange Juice"
+                          width={48}
+                          height={48}
                           className="w-12 h-12 rounded-lg object-cover"
                         />
                         <div className="flex-1">
@@ -452,9 +475,11 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                         href="/products/prod_2"
                         className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                       >
-                        <img
+                        <Image
                           src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=60&h=60&fit=crop"
                           alt="Banana"
+                          width={48}
+                          height={48}
                           className="w-12 h-12 rounded-lg object-cover"
                         />
                         <div className="flex-1">
@@ -473,9 +498,11 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                         href="/products/prod_3"
                         className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                       >
-                        <img
+                        <Image
                           src="https://media.istockphoto.com/id/909522844/photo/yummy-food-with-different-cuisine.webp?a=1&b=1&s=612x612&w=0&k=20&c=t4CMOoNhy5Fd33RC1_oSE0fh5QoVb7UdrwYlYhsgStE="
                           alt="Red Jacket"
+                          width={48}
+                          height={48}
                           className="w-12 h-12 rounded-lg object-cover"
                         />
                         <div className="flex-1">
@@ -502,80 +529,80 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
             <h2 className="text-2xl font-bold text-gray-900 mb-8">
               Sản phẩm liên quan
             </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {relatedProducts.map((relatedProduct) => (
-              <Link
-                key={relatedProduct.id}
-                href={`/products/detail/${relatedProduct.id}`}
-                className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
-              >
-                {/* Product Image */}
-                <div className="relative">
-                  <Image
-                    src={relatedProduct.images[0]}
-                    alt={relatedProduct.name}
-                    width={400}
-                    height={192}
-                    className="w-full h-48 object-cover"
-                  />
-                  {/* Status Label */}
-                  {parseInt(relatedProduct.id.split("_")[1]) % 4 === 0 && (
-                    <span className="absolute top-2 left-2 bg-pink-500 text-white text-xs px-2 py-1 rounded-full">
-                      Hot
-                    </span>
-                  )}
-                  {parseInt(relatedProduct.id.split("_")[1]) % 4 === 1 && (
-                    <span className="absolute top-2 left-2 bg-blue-400 text-white text-xs px-2 py-1 rounded-full">
-                      Sale
-                    </span>
-                  )}
-                  {parseInt(relatedProduct.id.split("_")[1]) % 4 === 2 && (
-                    <span className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
-                      New
-                    </span>
-                  )}
-                  {parseInt(relatedProduct.id.split("_")[1]) % 4 === 3 && (
-                    <span className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
-                      Best
-                    </span>
-                  )}
-                </div>
-
-                {/* Product Info */}
-                <div className="p-4">
-                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
-                    {relatedProduct.name}
-                  </h3>
-
-                  {/* Rating */}
-                  <div className="flex items-center space-x-1 mb-2">
-                    {[1, 2, 3, 4, 5].map((star) => (
-                      <Star
-                        key={star}
-                        className="w-4 h-4 text-yellow-400 fill-current"
-                      />
-                    ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {relatedProducts.map((relatedProduct) => (
+                <Link
+                  key={relatedProduct.id}
+                  href={`/products/detail/${relatedProduct.id}`}
+                  className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
+                >
+                  {/* Product Image */}
+                  <div className="relative">
+                    <Image
+                      src={relatedProduct.images[0]}
+                      alt={relatedProduct.name}
+                      width={400}
+                      height={192}
+                      className="w-full h-48 object-cover"
+                    />
+                    {/* Status Label */}
+                    {parseInt(relatedProduct.id.split("_")[1]) % 4 === 0 && (
+                      <span className="absolute top-2 left-2 bg-pink-500 text-white text-xs px-2 py-1 rounded-full">
+                        Hot
+                      </span>
+                    )}
+                    {parseInt(relatedProduct.id.split("_")[1]) % 4 === 1 && (
+                      <span className="absolute top-2 left-2 bg-blue-400 text-white text-xs px-2 py-1 rounded-full">
+                        Sale
+                      </span>
+                    )}
+                    {parseInt(relatedProduct.id.split("_")[1]) % 4 === 2 && (
+                      <span className="absolute top-2 left-2 bg-green-500 text-white text-xs px-2 py-1 rounded-full">
+                        New
+                      </span>
+                    )}
+                    {parseInt(relatedProduct.id.split("_")[1]) % 4 === 3 && (
+                      <span className="absolute top-2 left-2 bg-orange-500 text-white text-xs px-2 py-1 rounded-full">
+                        Best
+                      </span>
+                    )}
                   </div>
 
-                  {/* Price */}
-                  <div className="flex items-center space-x-2">
-                    <span className="text-lg font-bold text-green-600">
-                      {relatedProduct.default_price.unit_amount.toLocaleString()}
-                      đ
-                    </span>
-                    <span className="text-sm text-gray-500 line-through">
-                      {relatedProduct.old_price
-                        ? relatedProduct.old_price.toLocaleString()
-                        : (
-                            relatedProduct.default_price.unit_amount * 1.34
-                          ).toLocaleString()}
-                      đ
-                    </span>
+                  {/* Product Info */}
+                  <div className="p-4">
+                    <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                      {relatedProduct.name}
+                    </h3>
+
+                    {/* Rating */}
+                    <div className="flex items-center space-x-1 mb-2">
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <Star
+                          key={star}
+                          className="w-4 h-4 text-yellow-400 fill-current"
+                        />
+                      ))}
+                    </div>
+
+                    {/* Price */}
+                    <div className="flex items-center space-x-2">
+                      <span className="text-lg font-bold text-green-600">
+                        {relatedProduct.default_price.unit_amount.toLocaleString()}
+                        đ
+                      </span>
+                      <span className="text-sm text-gray-500 line-through">
+                        {relatedProduct.old_price
+                          ? relatedProduct.old_price.toLocaleString()
+                          : (
+                              relatedProduct.default_price.unit_amount * 1.34
+                            ).toLocaleString()}
+                        đ
+                      </span>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </div>

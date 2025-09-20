@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 import type { Metadata } from "next";
 import { Header } from "@/components/header";
 import { Button } from "@/components/ui/button";
@@ -30,15 +28,14 @@ export default function AboutPage() {
                 với giá tốt nhất nhờ công nghệ Auto-Pricing.
               </p>
               <div className="mt-6">
-              <div className="relative w-full h-56 md:h-72 lg:h-80">
-                <Image
-                  src="https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?w=1200&h=450&fit=crop"
-                  alt="Thực phẩm tươi ngon được đóng gói và trưng bày"
-                  fill
-                  className="rounded-xl object-cover"
-                />
-              </div>
-
+                <div className="relative w-full h-56 md:h-72 lg:h-80">
+                  <Image
+                    src="https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?w=1200&h=450&fit=crop"
+                    alt="Thực phẩm tươi ngon được đóng gói và trưng bày"
+                    fill
+                    className="rounded-xl object-cover"
+                  />
+                </div>
               </div>
             </div>
           </section>

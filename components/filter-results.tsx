@@ -8,9 +8,10 @@ import { ChevronDown, Grid, List, ShoppingCart, Star } from "lucide-react";
 import Link from "next/link";
 import { showToast } from "./ui/simple-toast";
 import { AddToCartButton } from "./add-to-cart-button";
+import Image from "next/image";
 
 interface FilterResultsProps {
-  products: Product[];
+  products: (Product & { priceNow?: number; timeLeft?: number })[];
   filterState: {
     selectedProductTypes: string[];
     selectedExpiryRanges: number[];
@@ -210,9 +211,11 @@ export default function FilterResults({
               >
                 {/* Product Image */}
                 <div className="relative">
-                  <img
+                  <Image
                     src={product.images[0] || "/placeholder-product.jpg"}
                     alt={product.name}
+                    width={192}
+                    height={192}
                     className="w-full h-48 object-cover"
                   />
                   {/* Status Label */}
@@ -276,7 +279,7 @@ export default function FilterResults({
                   {/* Price */}
                   <div className="flex items-center space-x-2 mb-3">
                     <span className="text-lg font-bold text-green-600">
-                      {(product as any).priceNow?.toLocaleString() ||
+                      {product.priceNow?.toLocaleString() ||
                         product.default_price.unit_amount.toLocaleString()}
                       đ
                     </span>
@@ -320,9 +323,11 @@ export default function FilterResults({
                 key={product.id}
                 className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               >
-                <img
+                <Image
                   src={product.images[0] || "/placeholder-product.jpg"}
                   alt={product.name}
+                  width={80}
+                  height={80}
                   className="w-20 h-20 object-cover rounded-lg"
                 />
                 <div className="flex-1">
@@ -334,7 +339,7 @@ export default function FilterResults({
                   </p>
                   <div className="flex items-center space-x-4">
                     <span className="text-lg font-bold text-green-600">
-                      {(product as any).priceNow?.toLocaleString() ||
+                      {product.priceNow?.toLocaleString() ||
                         product.default_price.unit_amount.toLocaleString()}
                       đ
                     </span>

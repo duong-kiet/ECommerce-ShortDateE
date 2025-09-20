@@ -17,6 +17,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Category, Product } from "@/lib/data";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Pagination } from "@/components/ui/pagination";
+import Image from "next/image";
 
 export default function ProductCategoryPage() {
   const params = useParams<{ category: string }>();
@@ -177,9 +178,11 @@ export default function ProductCategoryPage() {
                 >
                   {/* Product Image */}
                   <div className="relative">
-                    <img
+                    <Image
                       src={product.images[0]}
                       alt={product.name}
+                      width={192} // Assuming h-48 is around 192px for a square image in grid
+                      height={192} // Adjust as needed
                       className="w-full h-48 object-cover"
                     />
                     {/* Status Label */}

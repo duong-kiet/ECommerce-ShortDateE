@@ -102,7 +102,7 @@ export default function FilteredContent() {
           <FoodCarousel />
 
           {/* Shop by Categories */}
-          <ClientCategoryGrid products={allProducts} />
+          <ClientCategoryGrid />
 
           <PromoCards />
 

@@ -5,13 +5,7 @@ import { getCategories } from "@/lib/firebase/firestore-app-data";
 import Link from "next/link";
 import { Category } from "@/lib/data";
 
-interface ClientCategoryGridProps {
-  products?: any[]; // Thêm products từ props
-}
-
-export default function ClientCategoryGrid({
-  products = [],
-}: ClientCategoryGridProps) {
+export default function ClientCategoryGrid() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
 

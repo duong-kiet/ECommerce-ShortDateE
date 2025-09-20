@@ -23,7 +23,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface ProductCardProps {
   product: Product & { priceNow?: number; timeLeft?: number };
@@ -57,14 +57,19 @@ export function ProductCard({
 
   const [priceCountdown, setPriceCountdown] = useState<number>(0);
 
-  const calculateDynamicPrice = () => {
+  const calculateDynamicPrice = useCallback(() => {
     return calculateAutoPrice(
       product.originalPrice,
       product.expiryDate,
       product.factoryDate,
       product.default_price.unit_amount
     );
-  };
+  }, [
+    product.originalPrice,
+    product.expiryDate,
+    product.factoryDate,
+    product.default_price.unit_amount,
+  ]);
 
   // Calculate auto-pricing and time left
   useEffect(() => {
@@ -129,7 +134,7 @@ export function ProductCard({
       if (priceInterval) clearInterval(priceInterval);
       clearInterval(countdownInterval);
     };
-  }, []);
+  }, [calculateDynamicPrice, parsedExpiry, product.expiryDate]);
 
   const handleWishlist = () => {
     setIsWishlisted(!isWishlisted);

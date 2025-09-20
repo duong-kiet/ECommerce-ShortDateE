@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Filter, Clock, TrendingDown, Flame, X } from "lucide-react";
 import { getCategories } from "@/lib/firebase/firestore-app-data";
 import { removeParentheses } from "@/lib/utils";
-import { Category } from "@/lib/data";
+import { Category, Product } from "@/lib/data";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useFilter } from "@/contexts/filter-context";
@@ -13,14 +13,12 @@ import { getFilterCounts } from "@/lib/filter";
 import { useRouter } from "next/navigation";
 
 interface SidebarProps {
-  selectedCategory?: string;
   onCategoryChange?: (categoryId: string) => void;
-  products?: any[]; // Thêm products để tính toán counts
-  onApplyFilters?: () => void; // Callback khi apply filters
+  products?: Product[];
+  onApplyFilters?: () => void;
 }
 
 export default function Sidebar({
-  selectedCategory,
   onCategoryChange,
   products = [],
   onApplyFilters,
@@ -197,6 +195,7 @@ export default function Sidebar({
     }
     router.push(`/filter-result?${params.toString()}`);
     applyFilters(); // Still call applyFilters to update the global state
+    onApplyFilters?.(); // Call the passed onApplyFilters prop
   };
 
   return (
