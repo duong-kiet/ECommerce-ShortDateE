@@ -1,7 +1,11 @@
-"use client"
+"use client";
 
 import { useEffect, useState } from "react";
-import { getCategoryById, getProductsByCategory, getProductsByType } from "@/lib/firebase/firestore-app-data";
+import {
+  getCategoryById,
+  getProductsByCategory,
+  getProductsByType,
+} from "@/lib/firebase/firestore-app-data";
 import { DealsOfTheDaySection } from "@/components/deals-of-the-day-section";
 import { Header } from "@/components/header";
 import { ChevronDown, ShoppingCart, Grid, List, Clock } from "lucide-react";
@@ -22,11 +26,11 @@ export default function ProductCategoryPage() {
   const [priceRange, setPriceRange] = useState([5000, 1000000]);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const [selectedExpiryRanges, setSelectedExpiryRanges] = useState<string[]>(
+  const [selectedExpiryRanges, setSelectedExpiryRanges] = useState<number[]>(
     []
   );
 
-  const handleExpiryRangeChange = (range: string) => {
+  const handleExpiryRangeChange = (range: number) => {
     setSelectedExpiryRanges((prev) =>
       prev.includes(range) ? prev.filter((r) => r !== range) : [...prev, range]
     );
@@ -40,10 +44,10 @@ export default function ProductCategoryPage() {
         return;
       }
       setCategoryItem(cat);
-      if(params.category === "dry-foods") {
+      if (params.category === "dry-foods") {
         const prods = await getProductsByType("dry");
         setProducts(prods);
-      } else if(params.category === "fresh-foods") {
+      } else if (params.category === "fresh-foods") {
         const prods = await getProductsByType("fresh");
         setProducts(prods);
       } else {
@@ -68,11 +72,11 @@ export default function ProductCategoryPage() {
   };
 
   const expiryRanges = [
-    { name: "Hôm nay (0-1 ngày)", count: 6, range: "today" },
-    { name: "3 ngày tới", count: 8, range: "3days" },
-    { name: "1 tuần tới", count: 12, range: "1week" },
-    { name: "1 tháng tới", count: 18, range: "1month" },
-    { name: "Trên 1 tháng", count: 25, range: "over1month" },
+    { name: "Hôm nay (0-1 ngày)", count: 6, range: 0 }, // Hôm nay (0-1 ngày)
+    { name: "3 ngày tới", count: 8, range: 1 }, // 3 ngày tới
+    { name: "1 tuần tới", count: 12, range: 2 }, // 1 tuần tới
+    { name: "1 tháng tới", count: 18, range: 3 }, // 1 tháng tới
+    { name: "Trên 1 tháng", count: 25, range: 4 }, // Trên 1 tháng
   ];
 
   const itemsPerPage = 9;
@@ -98,13 +102,16 @@ export default function ProductCategoryPage() {
                   Trang chủ
                 </Link>
                 {" > "}
-                <span className="text-gray-900 font-bold">{categoryInfo.name}</span>
+                <span className="text-gray-900 font-bold">
+                  {categoryInfo.name}
+                </span>
               </div>
             </div>
           </div>
 
           <div className="flex items-center gap-2 mt-4">
-            <span>{categoryInfo.icon}</span><p>{categoryInfo.description}</p>
+            <span>{categoryInfo.icon}</span>
+            <p>{categoryInfo.description}</p>
           </div>
         </div>
       </div>
@@ -200,10 +207,8 @@ export default function ProductCategoryPage() {
 
                   {/* Product Info */}
                   <div className="p-4">
-                    <div className="text-sm text-gray-500 mb-1">
-                      Hodo Foods
-                    </div>
-                    
+                    <div className="text-sm text-gray-500 mb-1">Hodo Foods</div>
+
                     <Link href={`/products/detail/${product.id}`}>
                       <h3 className="font-semibold text-gray-900 mb-2 h-12 overflow-hidden">
                         {product.name}
@@ -277,7 +282,9 @@ export default function ProductCategoryPage() {
             {/* Price Filter */}
             <Card className="pt-0 mb-8">
               <CardHeader className="p-4 bg-[#dbfce7] text-[#00A63E]">
-                <CardTitle className="text-lg font-bold">Khoảng giá (VNĐ)</CardTitle>
+                <CardTitle className="text-lg font-bold">
+                  Khoảng giá (VNĐ)
+                </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
@@ -311,7 +318,10 @@ export default function ProductCategoryPage() {
               </CardHeader>
               <CardContent className="space-y-2">
                 {expiryRanges.map((range) => (
-                  <div key={range.name} className="flex items-center justify-between">
+                  <div
+                    key={range.name}
+                    className="flex items-center justify-between"
+                  >
                     <div className="flex items-center space-x-2">
                       <input
                         type="checkbox"
@@ -324,7 +334,9 @@ export default function ProductCategoryPage() {
                         {range.name}
                       </label>
                     </div>
-                    <span className="text-sm text-gray-500">({range.count})</span>
+                    <span className="text-sm text-gray-500">
+                      ({range.count})
+                    </span>
                   </div>
                 ))}
               </CardContent>

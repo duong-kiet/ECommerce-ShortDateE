@@ -2,30 +2,61 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Filter, Clock, TrendingDown, Flame } from "lucide-react";
+import { Filter, Clock, TrendingDown, Flame, X } from "lucide-react";
 import { getCategories } from "@/lib/firebase/firestore-app-data";
 import { removeParentheses } from "@/lib/utils";
 import { Category } from "@/lib/data";
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { useFilter } from "@/contexts/filter-context";
+import { getFilterCounts } from "@/lib/filter";
+import { useRouter } from "next/navigation";
 
 interface SidebarProps {
   selectedCategory?: string;
   onCategoryChange?: (categoryId: string) => void;
+  products?: any[]; // Thêm products để tính toán counts
+  onApplyFilters?: () => void; // Callback khi apply filters
 }
 
 export default function Sidebar({
   selectedCategory,
   onCategoryChange,
+  products = [],
+  onApplyFilters,
 }: SidebarProps) {
-  const [priceRange, setPriceRange] = useState([5000, 1000000]);
-  const [selectedProductTypes, setSelectedProductTypes] = useState<string[]>(
-    []
-  );
-  const [selectedExpiryRanges, setSelectedExpiryRanges] = useState<string[]>(
-    []
-  );
+  const {
+    filterState,
+    updatePriceRange,
+    updateProductTypes,
+    updateExpiryRanges,
+    updateCategory,
+    resetFilters,
+    applyFilters,
+  } = useFilter();
+
+  const router = useRouter();
+
   const [categories, setCategories] = useState<Category[]>([]);
+  const [filterCounts, setFilterCounts] = useState<{
+    productTypes: { dry: number; fresh: number };
+    expiryRanges: {
+      today: number;
+      "3days": number;
+      "1week": number;
+      "1month": number;
+      over1month: number;
+    };
+  }>({
+    productTypes: { dry: 0, fresh: 0 },
+    expiryRanges: {
+      today: 0,
+      "3days": 0,
+      "1week": 0,
+      "1month": 0,
+      over1month: 0,
+    },
+  });
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -33,7 +64,7 @@ export default function Sidebar({
         const fetchedCategories = await getCategories();
         setCategories(fetchedCategories);
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error("Error fetching categories:", error);
         setCategories([]);
       }
     };
@@ -41,17 +72,64 @@ export default function Sidebar({
     fetchCategories();
   }, []);
 
+  // Cập nhật filter counts khi products thay đổi
+  useEffect(() => {
+    if (products.length > 0) {
+      const counts = getFilterCounts(products);
+      setFilterCounts(
+        counts as {
+          productTypes: { dry: number; fresh: number };
+          expiryRanges: {
+            today: number;
+            "3days": number;
+            "1week": number;
+            "1month": number;
+            over1month: number;
+          };
+        }
+      );
+    }
+  }, [products]);
+
   const productTypes = [
-    { name: "Thực phẩm khô", count: 23, type: "dry" },
-    { name: "Đồ ăn tươi", count: 11, type: "fresh" },
+    {
+      name: "Thực phẩm khô",
+      count: filterCounts.productTypes.dry,
+      type: "dry",
+    },
+    {
+      name: "Đồ ăn tươi",
+      count: filterCounts.productTypes.fresh,
+      type: "fresh",
+    },
   ];
 
   const expiryRanges = [
-    { name: "Hôm nay (0-1 ngày)", count: 6, range: "today" },
-    { name: "3 ngày tới", count: 8, range: "3days" },
-    { name: "1 tuần tới", count: 12, range: "1week" },
-    { name: "1 tháng tới", count: 18, range: "1month" },
-    { name: "Trên 1 tháng", count: 25, range: "over1month" },
+    {
+      name: "Hôm nay (0-1 ngày)",
+      count: filterCounts.expiryRanges.today,
+      range: 0, // Hôm nay (0-1 ngày)
+    },
+    {
+      name: "3 ngày tới",
+      count: filterCounts.expiryRanges["3days"],
+      range: 1, // 3 ngày tới
+    },
+    {
+      name: "1 tuần tới",
+      count: filterCounts.expiryRanges["1week"],
+      range: 2, // 1 tuần tới
+    },
+    {
+      name: "1 tháng tới",
+      count: filterCounts.expiryRanges["1month"],
+      range: 3, // 1 tháng tới
+    },
+    {
+      name: "Trên 1 tháng",
+      count: filterCounts.expiryRanges.over1month,
+      range: 4, // Trên 1 tháng
+    },
   ];
 
   const autoPricingProducts = [
@@ -76,15 +154,49 @@ export default function Sidebar({
   ];
 
   const handleProductTypeChange = (type: string) => {
-    setSelectedProductTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
-    );
+    const newTypes = filterState.selectedProductTypes.includes(type)
+      ? filterState.selectedProductTypes.filter((t) => t !== type)
+      : [...filterState.selectedProductTypes, type];
+    updateProductTypes(newTypes);
   };
 
-  const handleExpiryRangeChange = (range: string) => {
-    setSelectedExpiryRanges((prev) =>
-      prev.includes(range) ? prev.filter((r) => r !== range) : [...prev, range]
-    );
+  const handleExpiryRangeChange = (range: number) => {
+    const newRanges = filterState.selectedExpiryRanges.includes(range)
+      ? filterState.selectedExpiryRanges.filter((r) => r !== range)
+      : [...filterState.selectedExpiryRanges, range];
+    updateExpiryRanges(newRanges);
+  };
+
+  const handleCategoryChange = (categoryId: string) => {
+    updateCategory(categoryId);
+    onCategoryChange?.(categoryId);
+  };
+
+  const handlePriceRangeChange = (value: number) => {
+    updatePriceRange([filterState.priceRange[0], value]);
+  };
+
+  const handleApplyFilters = () => {
+    const params = new URLSearchParams();
+    if (filterState.selectedCategory) {
+      params.set("category", filterState.selectedCategory);
+    }
+    if (filterState.selectedProductTypes.length > 0) {
+      params.set("productTypes", filterState.selectedProductTypes.join(","));
+    }
+    if (filterState.selectedExpiryRanges.length > 0) {
+      params.set("expiryRanges", filterState.selectedExpiryRanges.join(","));
+    }
+    // Assuming priceRange is always [0, max] or [min, max]
+    if (
+      filterState.priceRange[0] !== 0 ||
+      filterState.priceRange[1] !== 1000000
+    ) {
+      params.set("minPrice", filterState.priceRange[0].toString());
+      params.set("maxPrice", filterState.priceRange[1].toString());
+    }
+    router.push(`/filter-result?${params.toString()}`);
+    applyFilters(); // Still call applyFilters to update the global state
   };
 
   return (
@@ -115,9 +227,9 @@ export default function Sidebar({
               {categories.map((category) => (
                 <button
                   key={category.id}
-                  onClick={() => onCategoryChange?.(category.id)}
+                  onClick={() => handleCategoryChange(category.id)}
                   className={`w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-50 transition-all duration-200 ${
-                    selectedCategory === category.id
+                    filterState.selectedCategory === category.id
                       ? "bg-green-50 border border-green-200 shadow-sm"
                       : "hover:shadow-sm"
                   }`}
@@ -159,17 +271,17 @@ export default function Sidebar({
         <CardContent className="space-y-4">
           <div>
             <div className="flex justify-between text-sm text-gray-600 mb-2">
-              <span>{priceRange[0].toLocaleString()}đ</span>
-              <span>{priceRange[1].toLocaleString()}đ</span>
+              <span>{filterState.priceRange[0].toLocaleString()}đ</span>
+              <span>{filterState.priceRange[1].toLocaleString()}đ</span>
             </div>
             <div className="relative">
               <input
                 type="range"
                 min="5000"
                 max="1000000"
-                value={priceRange[1]}
+                value={filterState.priceRange[1]}
                 onChange={(e) =>
-                  setPriceRange([priceRange[0], parseInt(e.target.value)])
+                  handlePriceRangeChange(parseInt(e.target.value))
                 }
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
               />
@@ -190,7 +302,7 @@ export default function Sidebar({
                 <input
                   type="checkbox"
                   id={type.name}
-                  checked={selectedProductTypes.includes(type.type)}
+                  checked={filterState.selectedProductTypes.includes(type.type)}
                   onChange={() => handleProductTypeChange(type.type)}
                   className="text-green-600"
                 />
@@ -219,7 +331,9 @@ export default function Sidebar({
                 <input
                   type="checkbox"
                   id={range.name}
-                  checked={selectedExpiryRanges.includes(range.range)}
+                  checked={filterState.selectedExpiryRanges.includes(
+                    range.range
+                  )}
                   onChange={() => handleExpiryRangeChange(range.range)}
                   className="text-green-600"
                 />
@@ -233,13 +347,30 @@ export default function Sidebar({
         </CardContent>
       </Card>
 
-      {/* Filter Button */}
-      <Button
-        className="w-full bg-green-600 hover:bg-green-700"
-      >
-        <Filter className="w-4 h-4 mr-2" />
-        Lọc sản phẩm
-      </Button>
+      {/* Filter Buttons */}
+      <div className="space-y-2">
+        <Button
+          onClick={handleApplyFilters}
+          className="w-full bg-green-600 hover:bg-green-700"
+        >
+          <Filter className="w-4 h-4 mr-2" />
+          Lọc sản phẩm
+        </Button>
+
+        {/* Reset Button - chỉ hiện khi có filter được chọn */}
+        {(filterState.selectedProductTypes.length > 0 ||
+          filterState.selectedExpiryRanges.length > 0 ||
+          filterState.selectedCategory) && (
+          <Button
+            onClick={resetFilters}
+            variant="outline"
+            className="w-full border-gray-300 text-gray-600 hover:bg-gray-50"
+          >
+            <X className="w-4 h-4 mr-2" />
+            Xóa bộ lọc
+          </Button>
+        )}
+      </div>
 
       {/* Auto-Pricing Products */}
       <Card>

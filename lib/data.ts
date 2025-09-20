@@ -40,38 +40,58 @@ export function calculateAutoPrice(
   originalPrice: number,
   expiryDate: string,
   factoryDate: string,
-  limitPrice: number,
+  limitPrice: number
 ): number {
-
   // Dùng helper
   const parsedExpiry = formatTimeProduct(expiryDate);
   const parsedFactory = formatTimeProduct(factoryDate);
 
-  const ExpiryFactoryLeft = calculateExpiryFactoryLeft(parsedExpiry!, parsedFactory!);
+  const ExpiryFactoryLeft = calculateExpiryFactoryLeft(
+    parsedExpiry!,
+    parsedFactory!
+  );
   const NowFactoryLeft = calculateNowFactoryLeft(new Date(), parsedFactory!);
 
-  if (originalPrice - (originalPrice - limitPrice) * (NowFactoryLeft / ExpiryFactoryLeft) < limitPrice) {
+  if (
+    originalPrice -
+      (originalPrice - limitPrice) * (NowFactoryLeft / ExpiryFactoryLeft) <
+    limitPrice
+  ) {
     return limitPrice;
   }
-  return originalPrice - (originalPrice - limitPrice) * (NowFactoryLeft / ExpiryFactoryLeft);
-
+  return (
+    originalPrice -
+    (originalPrice - limitPrice) * (NowFactoryLeft / ExpiryFactoryLeft)
+  );
 }
 
 // Tính theo giây
-export function calculateExpiryFactoryLeft(expiryDate: Date, factoryDate: Date): number {
-  const ExpiryFactoryLeft = expiryDate.getTime() - factoryDate.getTime() > 0 ? Math.ceil((expiryDate.getTime() - factoryDate.getTime()) / 1000) : 0;
+export function calculateExpiryFactoryLeft(
+  expiryDate: Date,
+  factoryDate: Date
+): number {
+  const ExpiryFactoryLeft =
+    expiryDate.getTime() - factoryDate.getTime() > 0
+      ? Math.ceil((expiryDate.getTime() - factoryDate.getTime()) / 1000)
+      : 0;
   return ExpiryFactoryLeft;
 }
 
 // Tính theo giây
 export function calculateNowFactoryLeft(now: Date, factoryDate: Date): number {
-  const NowFactoryLeft = now.getTime() - factoryDate.getTime() > 0 ? Math.ceil((now.getTime() - factoryDate.getTime()) / 1000) : 0;
+  const NowFactoryLeft =
+    now.getTime() - factoryDate.getTime() > 0
+      ? Math.ceil((now.getTime() - factoryDate.getTime()) / 1000)
+      : 0;
   return NowFactoryLeft;
 }
 
 // Tính theo giây
 export function calculateExpiryNowLeft(expiryDate: Date, now: Date): number {
-  const ExpiryNowLeft = expiryDate.getTime() - now.getTime() > 0 ? Math.ceil((expiryDate.getTime() - now.getTime()) / 1000) : 0;
+  const ExpiryNowLeft =
+    expiryDate.getTime() - now.getTime() > 0
+      ? Math.ceil((expiryDate.getTime() - now.getTime()) / 1000)
+      : 0;
   return ExpiryNowLeft;
 }
 
@@ -107,19 +127,23 @@ export const formatPrice = (amount: number) =>
 
 export const formatCountdownTime = (s: number) => {
   if (s < 0) return "Đã hết hạn";
-  
+
   if (s >= ONE_DAY) {
     // Hiển thị theo ngày:giờ:phút
     const days = Math.floor(s / ONE_DAY);
     const hours = Math.floor((s % ONE_DAY) / ONE_HOUR);
     const minutes = Math.floor((s % ONE_HOUR) / ONE_MINUTE);
-    return `${days}d:${hours.toString().padStart(2, "0")}h:${minutes.toString().padStart(2, "0")}m`;
+    return `${days}d:${hours.toString().padStart(2, "0")}h:${minutes
+      .toString()
+      .padStart(2, "0")}m`;
   } else {
     // Hiển thị theo giờ:phút:giây
     const hours = Math.floor(s / ONE_HOUR);
-    const minutes = Math.floor(s % ONE_HOUR / ONE_MINUTE);
-    const seconds = Math.floor(s % ONE_MINUTE / ONE_SECOND);
-    return `${hours.toString().padStart(2, "0")}h:${minutes.toString().padStart(2, "0")}m:${seconds.toString().padStart(2, "0")}s`;
+    const minutes = Math.floor((s % ONE_HOUR) / ONE_MINUTE);
+    const seconds = Math.floor((s % ONE_MINUTE) / ONE_SECOND);
+    return `${hours.toString().padStart(2, "0")}h:${minutes
+      .toString()
+      .padStart(2, "0")}m:${seconds.toString().padStart(2, "0")}s`;
   }
 };
 
@@ -137,5 +161,49 @@ export const formatTimeLeft = (s: number) => {
     const m = Math.floor(s / ONE_MINUTE);
     return m === 1 ? "1 phút" : `${m} phút`;
   }
-  return Math.floor(s / ONE_SECOND) === 1 ? "1 giây" : `${Math.floor(s / ONE_SECOND)} giây`;
+  return Math.floor(s / ONE_SECOND) === 1
+    ? "1 giây"
+    : `${Math.floor(s / ONE_SECOND)} giây`;
 };
+
+// Hàm bổ sung priceNow và timeLeft cho sản phẩm
+export function enrichProductWithPricing(
+  product: Product
+): Product & { priceNow: number; timeLeft: number } {
+  const now = new Date();
+  const parsedExpiry = formatTimeProduct(product.expiryDate);
+  const parsedFactory = formatTimeProduct(product.factoryDate);
+
+  if (!parsedExpiry || !parsedFactory) {
+    return {
+      ...product,
+      priceNow: product.default_price.unit_amount,
+      timeLeft: 0,
+    };
+  }
+
+  const priceNow = calculateAutoPrice(
+    product.originalPrice,
+    product.expiryDate,
+    product.factoryDate,
+    product.default_price.unit_amount
+  );
+
+  // Tính timeLeft bằng calculateExpiryNowLeft
+  const timeLeftDay = Math.floor(
+    calculateExpiryNowLeft(parsedExpiry, now) / 86400
+  );
+
+  return {
+    ...product,
+    priceNow: Math.round(priceNow),
+    timeLeft: timeLeftDay,
+  };
+}
+
+// Hàm bổ sung priceNow và timeLeft cho mảng sản phẩm
+export function enrichProductsWithPricing(
+  products: Product[]
+): (Product & { priceNow: number; timeLeft: number })[] {
+  return products.map(enrichProductWithPricing);
+}

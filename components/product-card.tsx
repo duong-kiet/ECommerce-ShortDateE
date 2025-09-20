@@ -14,12 +14,19 @@ import {
 import { AddToCartButton } from "@/components/add-to-cart-button";
 import { showToast } from "@/components/ui/simple-toast";
 import { Card, CardContent } from "@/components/ui/card";
-import { Heart, ShoppingCart, Star, Clock, AlertTriangle, RefreshCw } from "lucide-react";
+import {
+  Heart,
+  ShoppingCart,
+  Star,
+  Clock,
+  AlertTriangle,
+  RefreshCw,
+} from "lucide-react";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 
 interface ProductCardProps {
-  product: Product;
+  product: Product & { priceNow?: number; timeLeft?: number };
   label?: "Hot" | "Sale" | "New";
   discount?: number;
   rating?: number;
@@ -36,7 +43,7 @@ export function ProductCard({
 }: ProductCardProps) {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [currentPrice, setCurrentPrice] = useState(
-    product.originalPrice
+    product.priceNow || product.originalPrice
   );
 
   // Parse expiry once via formatTimeProduct and reuse
@@ -82,38 +89,41 @@ export function ProductCard({
     // Initial updates
     updateTimeLeft();
     updatePrice();
-    
+
     // Set up intervals
     const timeInterval = setInterval(updateTimeLeft, 1000);
-    
+
     // Price update interval dựa trên thời gian còn lại
     let priceInterval: NodeJS.Timeout | null = null;
 
     if (parsedExpiry) {
       const updatePriceAndInterval = () => {
         updatePrice();
-        
+
         // Clear interval cũ và tạo interval mới với thời gian phù hợp
         if (priceInterval) clearInterval(priceInterval);
-        
+
         const timeLeft = calculateExpiryNowLeft(parsedExpiry, new Date());
-        
+
         if (timeLeft > 0) {
           const updateInterval = timeLeft > ONE_DAY ? ONE_DAY : ONE_MINUTE;
-          priceInterval = setInterval(updatePriceAndInterval, updateInterval * 1000);
+          priceInterval = setInterval(
+            updatePriceAndInterval,
+            updateInterval * 1000
+          );
 
           setPriceCountdown(updateInterval);
         }
       };
-      
+
       updatePriceAndInterval();
     }
 
     // Countdown interval cho price update
     const countdownInterval = setInterval(() => {
-      setPriceCountdown(prev => (prev > 0 ? prev - 1 : 0));
+      setPriceCountdown((prev) => (prev > 0 ? prev - 1 : 0));
     }, 1000);
-    
+
     return () => {
       clearInterval(timeInterval);
       if (priceInterval) clearInterval(priceInterval);
@@ -251,7 +261,9 @@ export function ProductCard({
             <div className="flex items-center justify-center gap-2 w-full px-3 py-2 bg-red-50 border border-red-200 rounded">
               <Clock className="w-4 h-4 text-red-500" />
               <span className="text-sm font-medium text-red-600">
-                {secondsLeft > 0 ? formatCountdownTime(secondsLeft) : "Đã hết hạn"}
+                {secondsLeft > 0
+                  ? formatCountdownTime(secondsLeft)
+                  : "Đã hết hạn"}
               </span>
             </div>
           </div>
