@@ -8,7 +8,8 @@ import {
   ShoppingCart,
   User,
   TrendingDown,
-  ChevronDown
+  ChevronDown,
+  Menu, // Import Menu icon for mobile toggle
 } from "lucide-react";
 import Link from "next/link";
 import { useCartStore } from "@/store/cart-store";
@@ -19,6 +20,8 @@ import { getUserDisplayName, logout } from "@/lib/firebase/auth";
 import { useRouter } from "next/navigation";
 import type { User as FirebaseUser } from "firebase/auth";
 
+import MobileNav from "@/components/mobile-nav"; // Import MobileNav component
+
 export function Header() {
   const { items } = useCartStore();
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -26,6 +29,7 @@ export function Header() {
   const [user, setUser] = useState<FirebaseUser | null>(null);
   const [displayName, setDisplayName] = useState<string>("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false); // State for mobile navigation
   const router = useRouter();
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -59,16 +63,31 @@ export function Header() {
       router.push("/login");
     } catch (err) {
       console.error("Logout failed", err);
+    } finally {
+      setMobileNavOpen(false); // Close mobile nav on logout
     }
   };
 
+  const toggleMobileNav = () => setMobileNavOpen((prev) => !prev);
+  const closeMobileNav = () => setMobileNavOpen(false);
+
   return (
     <header className="bg-white shadow-sm border-b">
-      <div className="px-4">
-        {/* Top Header */}
-        <div className="flex items-center justify-between py-4">
+      <div className="px-4 py-4">
+        {/* Top Header for Mobile & Desktop */}
+        <div className="flex items-center justify-between lg:justify-start lg:gap-8">
+          {/* Mobile Menu Toggle (Hamburger) */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden"
+            onClick={toggleMobileNav} // Toggle mobile nav
+          >
+            <Menu className="h-6 w-6" />
+          </Button>
+
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-2 flex-shrink-0">
             <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
               <ShoppingCart className="w-5 h-5 text-white" />
             </div>
@@ -78,10 +97,9 @@ export function Header() {
             </div>
           </Link>
 
-          {/* Search Bar */}
-          <div className="flex-1 max-w-2xl mx-8">
+          {/* Search Bar (Desktop only, or mobile in a different layout) */}
+          <div className="hidden lg:flex-1 lg:max-w-2xl lg:mx-8 lg:block">
             <div className="flex border border-gray-300 rounded-lg overflow-hidden">
-              {/* Search Input */}
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                 <input
@@ -93,8 +111,8 @@ export function Header() {
             </div>
           </div>
 
-          {/* Right Icons */}
-          <div className="flex items-center space-x-6">
+          {/* Right Icons (Desktop only, or mobile in a different layout) */}
+          <div className="hidden lg:flex items-center space-x-6">
             <Button
               variant="ghost"
               size="sm"
@@ -139,7 +157,9 @@ export function Header() {
                     aria-expanded={menuOpen}
                   >
                     <User className="w-4 h-4" />
-                    <span className="text-sm">{displayName || "Tài khoản"}</span>
+                    <span className="text-sm">
+                      {displayName || "Tài khoản"}
+                    </span>
                     <ChevronDown className="w-4 h-4" />
                   </button>
 
@@ -156,7 +176,11 @@ export function Header() {
                 </>
               ) : (
                 <Link href="/login">
-                  <Button variant="ghost" size="sm" className="flex items-center space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex items-center space-x-2"
+                  >
                     <User className="w-4 h-4" />
                     <span>Đăng nhập</span>
                   </Button>
@@ -164,10 +188,50 @@ export function Header() {
               )}
             </div>
           </div>
+
+          {/* Mobile Search Bar and Icons */}
+          <div className="flex items-center space-x-4 lg:hidden">
+            {/* Search Button for Mobile (to be implemented) */}
+            <Button variant="ghost" size="icon">
+              <Search className="w-5 h-5" />
+            </Button>
+            <Link href="/cart">
+              <Button variant="ghost" size="icon" className="relative">
+                <ShoppingCart className="w-5 h-5" />
+                <span className="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                  {totalItems}
+                </span>
+              </Button>
+            </Link>
+            {/* User Icon for Mobile (optional, could be in mobile menu) */}
+            <Link href={user ? "#" : "/login"}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="relative"
+                onClick={() => user && setMenuOpen((s) => !s)}
+              >
+                <User className="w-5 h-5" />
+                {user && menuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white border rounded shadow-md z-20">
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-50"
+                    >
+                      Đăng xuất
+                    </button>
+                  </div>
+                )}
+              </Button>
+            </Link>
+          </div>
         </div>
 
-        {/* Bottom Header - Navigation */}
-        <div className="flex items-center justify-between py-3 border-t border-gray-100">
+        {/* Mobile Navigation Component */}
+        <MobileNav isOpen={mobileNavOpen} onClose={closeMobileNav} />
+
+        {/* Bottom Header - Navigation (Hidden on Mobile, Displayed on Desktop) */}
+        <div className="hidden lg:flex items-center justify-between py-3 border-t border-gray-100">
           <nav className="flex items-center space-x-8">
             <Link
               href="/"

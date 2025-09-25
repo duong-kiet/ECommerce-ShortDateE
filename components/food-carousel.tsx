@@ -6,7 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Product , formatTimeProduct } from "@/lib/data";
+import { Product, formatTimeProduct } from "@/lib/data";
 import { getProducts } from "@/lib/firebase/firestore-app-data";
 
 // Helper function to get time until expiry
@@ -85,7 +85,7 @@ export function FoodCarousel() {
   const urgencyLevel = getUrgencyLevel(currentProduct.expiryDate);
 
   return (
-    <section className="bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-8 -mx-4 lg:-mx-8 px-4 lg:px-8 mb-8 relative overflow-hidden">
+    <section className="bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 py-6 sm:py-8 px-2 sm:px-4 lg:px-8 mb-8 relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-10 left-10 text-6xl">🥗</div>
@@ -101,14 +101,14 @@ export function FoodCarousel() {
             <div className="p-2 bg-green-100 rounded-full">
               <Zap className="w-6 h-6 text-green-600" />
             </div>
-            <h2 className="text-3xl font-bold text-gray-900">
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">
               Thực phẩm tươi ngon giá tốt mỗi ngày
             </h2>
             <div className="p-2 bg-green-100 rounded-full">
               <Zap className="w-6 h-6 text-green-600" />
             </div>
           </div>
-          <p className="text-lg text-gray-600">
+          <p className="text-base sm:text-lg text-gray-600">
             Giá giảm tự động theo thời gian thực - Càng gần hết hạn, giá càng
             tốt!
           </p>
@@ -118,20 +118,20 @@ export function FoodCarousel() {
         <div className="relative">
           <Card className="overflow-hidden shadow-xl border-0">
             <CardContent className="p-0">
-              <div className="grid grid-cols-1 lg:grid-cols-2 min-h-[400px]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 min-h-[300px] md:min-h-[400px] lg:min-h-[450px]">
                 {/* Product Image */}
-                <div className="relative bg-white">
+                <div className="relative bg-white h-48 sm:h-64 md:h-72 lg:h-96">
                   <Image
                     src={currentProduct.images[0]}
                     alt={currentProduct.name}
                     fill
                     className="object-cover"
                   />
-                  
+
                   {/* Urgency Indicator */}
-                  <div className="absolute top-4 left-4">
+                  <div className="absolute top-2 left-2 md:top-4 md:left-4">
                     <div
-                      className={`flex items-center gap-1 px-2 py-1 rounded-full text-lg font-medium ${
+                      className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs sm:text-sm md:text-base lg:text-lg font-medium text-white ${
                         urgencyLevel === "high"
                           ? "bg-red-100 text-red-700"
                           : urgencyLevel === "medium"
@@ -139,42 +139,39 @@ export function FoodCarousel() {
                           : "bg-green-100 text-green-700"
                       }`}
                     >
-                      <Clock className="w-3 h-3" />
+                      <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
                       {timeUntilExpiry}
                     </div>
                   </div>
                 </div>
 
                 {/* Product Details */}
-                <div className="p-8 bg-white flex flex-col justify-center">
-                  <div className="space-y-4">
+                <div className="p-3 sm:p-4 lg:p-8 bg-white flex flex-col justify-center">
+                  <div className="space-y-2 sm:space-y-3 lg:space-y-4">
                     <div>
-                      <h3 className="text-2xl font-bold text-gray-900 mb-2"
-                      >
+                      <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">
                         {currentProduct.name}
                       </h3>
-                      <p className="text-gray-600 leading-relaxed truncate">
+                      <p className="text-xs sm:text-sm lg:text-base text-gray-600 leading-relaxed truncate">
                         {currentProduct.description}
                       </p>
                     </div>
 
                     {/* Pricing */}
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-3">
-                        <span className="text-3xl font-bold text-green-600">
-                          {(currentPrice).toLocaleString("vi-VN")}đ
+                    <div className="space-y-1 sm:space-y-2">
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <span className="text-xl sm:text-2xl lg:text-3xl font-bold text-green-600">
+                          {currentPrice.toLocaleString("vi-VN")}đ
                         </span>
                         {originalPrice > currentPrice && (
-                          <span className="text-lg text-gray-400 line-through">
-                            {(originalPrice).toLocaleString("vi-VN")}đ
+                          <span className="text-sm lg:text-lg text-gray-400 line-through">
+                            {originalPrice.toLocaleString("vi-VN")}đ
                           </span>
                         )}
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-xs sm:text-sm text-gray-500">
                         💡 Tiết kiệm:{" "}
-                        {((originalPrice - currentPrice)).toLocaleString(
-                          "vi-VN"
-                        )}
+                        {(originalPrice - currentPrice).toLocaleString("vi-VN")}
                         đ
                       </div>
                     </div>
@@ -183,21 +180,21 @@ export function FoodCarousel() {
                     {currentProduct.rating && (
                       <div className="flex items-center gap-1">
                         <span className="text-yellow-400">★</span>
-                        <span className="text-sm font-medium">
+                        <span className="text-xs sm:text-sm font-medium text-gray-600">
                           {currentProduct.rating}
                         </span>
-                        <span className="text-sm text-gray-500">
+                        <span className="text-xs sm:text-sm text-gray-500">
                           (Đánh giá)
                         </span>
                       </div>
                     )}
 
                     {/* Action Button */}
-                    <div className="pt-4">
+                    <div className="pt-2 sm:pt-4">
                       <Button
                         asChild
-                        size="lg"
-                        className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold"
+                        size="sm"
+                        className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold lg:size-lg"
                       >
                         <Link href={`/products/detail/${currentProduct.id}`}>
                           Mua ngay - Giá tốt nhất!
@@ -206,7 +203,7 @@ export function FoodCarousel() {
                     </div>
 
                     {/* Auto-pricing Info */}
-                    <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
+                    <div className="text-xs sm:text-sm text-gray-500 bg-gray-50 p-2 sm:p-3 rounded-lg">
                       🤖 Giá được cập nhật tự động mỗi phút dựa trên hạn sử dụng
                     </div>
                   </div>
@@ -219,32 +216,32 @@ export function FoodCarousel() {
           <Button
             variant="secondary"
             size="icon"
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg"
+            className="absolute left-1 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg lg:left-4"
             onClick={prevSlide}
             onMouseEnter={() => setAutoPlay(false)}
             onMouseLeave={() => setAutoPlay(true)}
           >
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
 
           <Button
             variant="secondary"
             size="icon"
-            className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg"
+            className="absolute right-1 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white shadow-lg lg:right-4"
             onClick={nextSlide}
             onMouseEnter={() => setAutoPlay(false)}
             onMouseLeave={() => setAutoPlay(true)}
           >
-            <ChevronRight className="h-5 w-5" />
+            <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
           </Button>
         </div>
 
         {/* Dots Indicator */}
-        <div className="flex justify-center mt-6 space-x-2">
+        <div className="flex justify-center mt-3 sm:mt-4 space-x-1 sm:space-x-2">
           {products.map((_, index) => (
             <button
               key={index}
-              className={`w-3 h-3 rounded-full transition-all duration-200 ${
+              className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full transition-all duration-200 ${
                 index === currentIndex
                   ? "bg-green-600 scale-110"
                   : "bg-gray-300 hover:bg-gray-400"
@@ -257,8 +254,8 @@ export function FoodCarousel() {
         </div>
 
         {/* Footer Info */}
-        <div className="text-center mt-6">
-          <p className="text-sm text-gray-600">
+        <div className="text-center mt-3 sm:mt-4">
+          <p className="text-xs sm:text-sm text-gray-600">
             🔥 Đang hiển thị {currentIndex + 1} / {products.length} sản phẩm
             tươi ngon với giá ưu đãi
           </p>

@@ -16,12 +16,14 @@ interface SidebarProps {
   onCategoryChange?: (categoryId: string) => void;
   products?: Product[];
   onApplyFilters?: () => void;
+  onClose?: () => void; // Add onClose prop
 }
 
 export default function Sidebar({
   onCategoryChange,
   products = [],
   onApplyFilters,
+  onClose, // Destructure onClose
 }: SidebarProps) {
   const {
     filterState,
@@ -199,7 +201,17 @@ export default function Sidebar({
   };
 
   return (
-    <div className="space-y-6 w-full">
+    <div className="relative space-y-6 w-full h-full overflow-y-auto lg:w-auto p-4 lg:p-0">
+      {onClose && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onClose}
+          className="absolute top-2 right-2 lg:hidden"
+        >
+          <X className="h-5 w-5" />
+        </Button>
+      )}
       {/* Auto-Pricing Banner */}
       <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
         <CardContent className="p-4">

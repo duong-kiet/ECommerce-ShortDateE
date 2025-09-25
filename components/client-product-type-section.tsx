@@ -62,13 +62,17 @@ export default function ClientProductTypeSection({
 
   if (loading) {
     return (
-      <section className="py-8 w-full">
+      <section className="py-6 sm:py-8 w-full">
         <div className="mb-6">
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex items-center gap-2 sm:gap-3 mb-2">
             <span className="text-2xl">{getTypeIcon()}</span>
-            <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+              {title}
+            </h2>
           </div>
-          <p className="text-sm text-gray-600">{getTypeDescription()}</p>
+          <p className="text-xs sm:text-sm text-gray-600">
+            {getTypeDescription()}
+          </p>
         </div>
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
@@ -80,15 +84,19 @@ export default function ClientProductTypeSection({
   const displayedProducts = products.slice(0, maxProducts);
 
   return (
-    <section className="py-8 w-full">
+    <section className="py-6 sm:py-8 w-full">
       <div className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
+        <div className="flex items-center gap-2 sm:gap-3 mb-2">
           <span className="text-2xl">{getTypeIcon()}</span>
-          <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900">
+            {title}
+          </h2>
         </div>
-        <p className="text-sm text-gray-600">{getTypeDescription()}</p>
+        <p className="text-xs sm:text-sm text-gray-600">
+          {getTypeDescription()}
+        </p>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
         {displayedProducts.map((product, index) => (
           <ProductCard
             key={product.id}

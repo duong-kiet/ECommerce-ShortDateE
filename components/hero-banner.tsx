@@ -16,15 +16,15 @@ export function HeroBanner() {
   };
 
   return (
-    <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-8 md:p-12 w-full border border-green-100">
+    <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-4 sm:p-8 md:p-12 w-full border border-green-100">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
         <div className="space-y-6">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
             Thực phẩm tươi ngon
             <span className="text-green-600 block">Giá tốt mỗi ngày</span>
           </h1>
 
-          <p className="text-lg text-gray-600">
+          <p className="text-base sm:text-lg text-gray-600">
             Hệ thống tự động giảm giá theo thời gian thực. Càng gần ngày hết
             hạn, giá càng tốt!
           </p>
@@ -43,7 +43,7 @@ export function HeroBanner() {
             />
             <Button
               type="submit"
-              className="bg-green-600 hover:bg-green-700 text-white px-8 py-3"
+              className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 sm:px-8 sm:py-3"
             >
               Đăng ký
             </Button>
@@ -51,7 +51,7 @@ export function HeroBanner() {
         </div>
 
         <div className="relative">
-          <div className="relative w-full h-56 md:h-72 lg:h-80">
+          <div className="relative w-full h-48 sm:h-56 md:h-72 lg:h-80">
             <Image
               src="https://images.unsplash.com/photo-1511690656952-34342bb7c2f2?w=1200&h=450&fit=crop"
               alt="Thực phẩm tươi ngon được đóng gói và trưng bày"

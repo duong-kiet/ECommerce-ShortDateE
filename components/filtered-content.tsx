@@ -6,6 +6,7 @@ import { Product, enrichProductsWithPricing } from "@/lib/data";
 import { filterProducts } from "@/lib/filter";
 import { useFilter } from "@/contexts/filter-context";
 import Sidebar from "@/components/sidebar";
+import MobileSidebar from "@/components/mobile-sidebar"; // Import MobileSidebar
 import { HeroPricingCarousel } from "@/components/hero-pricing-carousel";
 import { FoodCarousel } from "@/components/food-carousel";
 import ClientProductTypeSection from "@/components/client-product-type-section";
@@ -88,8 +89,16 @@ export default function FilteredContent() {
   return (
     <main className="py-8">
       <div className="flex flex-col lg:flex-row gap-8">
-        {/* Sidebar */}
-        <aside className="lg:w-80 flex-shrink-0 px-4 lg:px-8">
+        {/* Mobile Sidebar Toggle and Content */}
+        <div className="lg:hidden px-4">
+          <MobileSidebar
+            products={allProducts}
+            onApplyFilters={handleApplyFilters}
+          />
+        </div>
+
+        {/* Desktop Sidebar */}
+        <aside className="hidden lg:block lg:w-80 flex-shrink-0 px-4 lg:px-8">
           <Sidebar products={allProducts} onApplyFilters={handleApplyFilters} />
         </aside>
 
