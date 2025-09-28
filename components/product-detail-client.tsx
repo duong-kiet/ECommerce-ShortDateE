@@ -105,10 +105,10 @@ export default function ProductDetailClient({
   return (
     <div>
       <Header />
-      <div className="min-h-screen bg-gray-50 mx-[70px]">
+      <div className="min-h-screen bg-gray-50 mx-4 md:mx-8 lg:mx-[70px]">
         {/* Breadcrumb */}
         <div className="bg-white border-b">
-          <div className="max-w-7xl mx-auto px-8 py-4">
+          <div className="max-w-7xl mx-auto px-0 lg:px-8 py-4">
             <div className="flex items-center space-x-2 text-sm text-gray-600">
               <Link href="/" className="hover:text-green-600 transition-colors">
                 Trang chủ
@@ -138,21 +138,22 @@ export default function ProductDetailClient({
         </div>
 
         {/* Main Product Section */}
-        <div className="max-w-7xl mx-auto px-8 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+        <div className="max-w-7xl mx-auto p-0 lg:px-8 lg:py-8">
+          <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-y-8 lg:gap-12">
             {/* Left Side - Product Images */}
             <div>
               {/* Main Image */}
               <div className="relative mb-4">
                 <Link href={product.images[0]} target="_blank">
-                  <Image
-                    src={product.images[0]}
-                    alt={product.name}
-                    width={800}
-                    height={384}
-                    className="w-full h-96 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                    priority
-                  />
+                  <div className="relative w-full h-64 sm:h-80 lg:h-96 rounded-lg overflow-hidden">
+                    <Image
+                      src={product.images[0]}
+                      alt={product.name}
+                      fill
+                      className="object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                      priority
+                    />
+                  </div>
                 </Link>
                 {/* Sale Badge */}
                 <div className="absolute top-4 left-4 bg-pink-500 text-white text-sm px-3 py-1 rounded-full font-medium">
@@ -161,16 +162,18 @@ export default function ProductDetailClient({
               </div>
 
               {/* Thumbnail Gallery */}
-              <div className="grid grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {product.images.slice(0, 4).map((image, index) => (
-                  <div key={index} className="relative">
+                  <div
+                    key={index}
+                    className="relative rounded-lg overflow-hidden h-20 sm:h-24"
+                  >
                     <Link href={image} target="_blank">
                       <Image
                         src={image}
                         alt={`${product.name} ${index + 1}`}
-                        width={200}
-                        height={96}
-                        className="w-full h-24 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                        fill
+                        className="object-cover cursor-pointer hover:opacity-80 transition-opacity"
                       />
                     </Link>
                   </div>
@@ -329,7 +332,7 @@ export default function ProductDetailClient({
             </div>
 
             {/* Tab Content and Sidebar */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-4 gap-y-8 lg:gap-8">
               {/* Main Tab Content */}
               <div className="lg:col-span-3 prose max-w-none">
                 <div className="space-y-8">
@@ -348,7 +351,7 @@ export default function ProductDetailClient({
                       <h4 className="font-semibold text-gray-900 mb-4">
                         Thông số kỹ thuật:
                       </h4>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                         <div>
                           <span className="text-gray-600">Loại đóng gói:</span>
                           <span className="ml-2 font-medium">Chai</span>
@@ -452,13 +455,14 @@ export default function ProductDetailClient({
                         href="/products/prod_1"
                         className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                       >
-                        <Image
-                          src="https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=60&h=60&fit=crop"
-                          alt="Orange Juice"
-                          width={48}
-                          height={48}
-                          className="w-12 h-12 rounded-lg object-cover"
-                        />
+                        <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                          <Image
+                            src="https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=60&h=60&fit=crop"
+                            alt="Orange Juice"
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
                         <div className="flex-1">
                           <h4 className="text-sm font-medium text-gray-900">
                             Nước cam tươi
@@ -475,13 +479,14 @@ export default function ProductDetailClient({
                         href="/products/prod_2"
                         className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                       >
-                        <Image
-                          src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=60&h=60&fit=crop"
-                          alt="Banana"
-                          width={48}
-                          height={48}
-                          className="w-12 h-12 rounded-lg object-cover"
-                        />
+                        <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                          <Image
+                            src="https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?w=60&h=60&fit=crop"
+                            alt="Banana"
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
                         <div className="flex-1">
                           <h4 className="text-sm font-medium text-gray-900">
                             Chuối tươi
@@ -498,13 +503,14 @@ export default function ProductDetailClient({
                         href="/products/prod_3"
                         className="flex items-center space-x-3 p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                       >
-                        <Image
-                          src="https://media.istockphoto.com/id/909522844/photo/yummy-food-with-different-cuisine.webp?a=1&b=1&s=612x612&w=0&k=20&c=t4CMOoNhy5Fd33RC1_oSE0fh5QoVb7UdrwYlYhsgStE="
-                          alt="Red Jacket"
-                          width={48}
-                          height={48}
-                          className="w-12 h-12 rounded-lg object-cover"
-                        />
+                        <div className="relative w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+                          <Image
+                            src="https://media.istockphoto.com/id/909522844/photo/yummy-food-with-different-cuisine.webp?a=1&b=1&s=612x612&w=0&k=20&c=t4CMOoNhy5Fd33RC1_oSE0fh5QoVb7UdrwYlYhsgStE="
+                            alt="Red Jacket"
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
                         <div className="flex-1">
                           <h4 className="text-sm font-medium text-gray-900">
                             Bún cá
@@ -529,7 +535,7 @@ export default function ProductDetailClient({
             <h2 className="text-2xl font-bold text-gray-900 mb-8">
               Sản phẩm liên quan
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedProducts.map((relatedProduct) => (
                 <Link
                   key={relatedProduct.id}
@@ -538,13 +544,14 @@ export default function ProductDetailClient({
                 >
                   {/* Product Image */}
                   <div className="relative">
-                    <Image
-                      src={relatedProduct.images[0]}
-                      alt={relatedProduct.name}
-                      width={400}
-                      height={192}
-                      className="w-full h-48 object-cover"
-                    />
+                    <div className="relative w-full h-48 overflow-hidden">
+                      <Image
+                        src={relatedProduct.images[0]}
+                        alt={relatedProduct.name}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
                     {/* Status Label */}
                     {parseInt(relatedProduct.id.split("_")[1]) % 4 === 0 && (
                       <span className="absolute top-2 left-2 bg-pink-500 text-white text-xs px-2 py-1 rounded-full">
