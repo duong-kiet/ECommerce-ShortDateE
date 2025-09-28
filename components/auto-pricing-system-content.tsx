@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, TrendingDown, AlertTriangle } from "lucide-react";
+import { TrendingDown } from "lucide-react";
 
 export function AutoPricingSystemContent() {
   return (

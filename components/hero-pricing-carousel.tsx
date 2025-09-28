@@ -1,13 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Clock,
-  TrendingDown,
-  AlertTriangle,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { HeroBanner } from "@/components/hero-banner";
 import { AutoPricingSystemContent } from "@/components/auto-pricing-system-content"; // Import the new component

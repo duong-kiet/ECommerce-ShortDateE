@@ -4,9 +4,10 @@ import { useState } from "react";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Sidebar from "@/components/sidebar"; // Import your existing Sidebar component
+import { Product } from "@/lib/data";
 
 interface MobileSidebarProps {
-  products?: any[]; // Pass products to the sidebar
+  products?: (Product & { priceNow?: number; timeLeft?: number })[]; // Pass products to the sidebar
   onCategoryChange?: (categoryId: string) => void;
   onApplyFilters?: () => void;
 }

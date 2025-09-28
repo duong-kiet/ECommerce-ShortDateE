@@ -105,7 +105,7 @@ export default function ProductDetailClient({
   return (
     <div>
       <Header />
-      <div className="min-h-screen bg-gray-50 mx-4 md:mx-8 lg:mx-[70px]">
+      <div className="min-h-screen bg-gray-50 mx-4 md:mx-8">
         {/* Breadcrumb */}
         <div className="bg-white border-b">
           <div className="max-w-7xl mx-auto px-0 lg:px-8 py-4">
