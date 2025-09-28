@@ -212,7 +212,7 @@ export function ProductCard({
         <div className="p-3 sm:p-4">
           <a
             href={`/products/detail/${product.id}`}
-            className="font-semibold text-gray-900 mb-1 line-clamp-2 h-auto font-sans text-sm sm:text-base"
+            className="font-semibold text-gray-900 mb-1 line-clamp-2 h-auto font-sans text-sm sm:text-base min-h-[40px]"
           >
             {product.name ?? "No name"}
           </a>

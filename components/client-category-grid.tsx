@@ -26,7 +26,7 @@ export default function ClientCategoryGrid() {
 
   if (loading) {
     return (
-      <section className="py-6 sm:py-8 w-full">
+      <section className="py-6 sm:py-8 w-full px-4 md:px-8">
         <div className="mb-6">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
             Phân khúc sản phẩm
@@ -50,7 +50,7 @@ export default function ClientCategoryGrid() {
   );
 
   return (
-    <section className="py-6 sm:py-8 w-full">
+    <section className="py-6 sm:py-8 w-full px-4 md:px-8">
       <div className="mb-6">
         <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">
           Phân khúc sản phẩm
@@ -59,7 +59,7 @@ export default function ClientCategoryGrid() {
           Chọn phân khúc phù hợp với nhu cầu của bạn
         </p>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-4 sm:gap-6 mb-8">
         {mainCategories.map((category) => (
           <Link
             href={`/categories/${category.id}`}

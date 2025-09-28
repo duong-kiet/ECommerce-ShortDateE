@@ -118,19 +118,19 @@ export default function ProductCategoryPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-8 py-8">
-        <div className="flex gap-8">
+      <div className="max-w-7xl mx-auto px-4 py-8 md:px-8">
+        <div className="flex flex-col gap-4 md:flex-row md:gap-8">
           {/* Left Side - Product List (Vertical) */}
           <div className="flex-1">
             {/* Product Listing Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">
+                <h2 className="text-xl font-semibold text-gray-900 leading-tight">
                   Chúng tôi tìm thấy {products.length} sản phẩm cho bạn!
                 </h2>
               </div>
 
-              <div className="flex items-center space-x-4">
+              <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
                 {/* Show Dropdown */}
                 <div className="relative">
                   <select className="appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-green-500">
@@ -170,7 +170,7 @@ export default function ProductCategoryPage() {
             </div>
 
             {/* Product List - Grid Layout */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
               {paginatedProducts.map((product) => (
                 <div
                   key={product.id}
@@ -281,7 +281,7 @@ export default function ProductCategoryPage() {
           </div>
 
           {/* Right Side - Filters */}
-          <div className="w-80">
+          <div className="w-full order-first md:w-80 md:order-last">
             {/* Price Filter */}
             <Card className="pt-0 mb-8">
               <CardHeader className="p-4 bg-[#dbfce7] text-[#00A63E]">
